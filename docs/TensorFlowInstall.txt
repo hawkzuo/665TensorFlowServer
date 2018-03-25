@@ -1,0 +1,26 @@
+
+------------------------
+
+# Install via Anaconda
+conda create -n tensorflow pip python=3.6
+
+#
+# To activate this environment, use:
+# > source activate tensorflow
+#
+# To deactivate an active environment, use:
+# > source deactivate
+#
+
+source activate tensorflow
+pip install --ignore-installed --upgrade tensorflow
+
+conda info --env
+=>  /Users/jianyuzuo/anaconda/envs/tensorflow
+=>  Set this value to Pycharm's Project Interpreter
+
+# Install a specific package in ENV 'tensorflow'
+conda install pandas
+
+
+
