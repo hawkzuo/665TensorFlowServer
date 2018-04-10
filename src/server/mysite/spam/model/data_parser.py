@@ -104,9 +104,9 @@ def create_bag_of_n_grams(training_list, cutoff_frequency, n):
 
 # Generate the feature matrix based on both unigram and ngram
 # For now, only use 2-gram
-def generate_matrix_ngram(data_list, unigram_dict, ngram_dict):
+def generate_matrix_ngram(data_list, ngram_dict):
     featureMatrix = np.zeros(shape=(len(data_list),
-                                    len(unigram_dict) + len(ngram_dict)),
+                                    len(ngram_dict)),
                              dtype=float)
     labelMatrix = np.zeros(shape=(len(data_list), 2), dtype=int)
     regex = re.compile("X-Spam.*\n")
@@ -116,12 +116,9 @@ def generate_matrix_ngram(data_list, unigram_dict, ngram_dict):
         tokens = raw.split()
         fileUniDist = Counter(tokens)
         fileUniNGramDist = Counter(ngrams(tokens, 2))
-        for key, value in fileUniDist.items():
-            if key in unigram_dict:
-                featureMatrix[i, unigram_dict[key]] = value
         for key, value in fileUniNGramDist.items():
             if key in ngram_dict:
-                featureMatrix[i, len(unigram_dict) + ngram_dict[key]] = value
+                featureMatrix[i, ngram_dict[key]] = value
 
         if label == 'spam':
             labelMatrix[i, :] = np.array([1, 0])
@@ -184,8 +181,11 @@ if __name__ == '__main__':
     trainY, trainX = generate_matrix(train, featureDict)
     testY, testX = generate_matrix(test, featureDict)
 
-    biTrainY, biTrainX = generate_matrix_ngram(train, featureDict, biGramFeatureDict)
-    biTestY, biTestX = generate_matrix_ngram(test, featureDict, biGramFeatureDict)
+    biTrainY, biTrainX = generate_matrix_ngram(train, biGramFeatureDict)
+    biTestY, biTestX = generate_matrix_ngram(test, biGramFeatureDict)
+
+    combinedTrainX = np.concatenate((trainX, biTrainX), axis=1)
+    combinedTestX = np.concatenate((testX, biTestX), axis=1)
 
     # print(trainX.shape)
     # print(trainY.shape)
@@ -197,7 +197,7 @@ if __name__ == '__main__':
     np.savetxt(os.getcwd() + "/data/testX.csv", testX, delimiter="\t")
     np.savetxt(os.getcwd() + "/data/testY.csv", testY, delimiter="\t")
 
-    np.savetxt(os.getcwd() + "/data/biTrainX.csv", biTrainX, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/biTrainX.csv", combinedTrainX, delimiter="\t")
     np.savetxt(os.getcwd() + "/data/biTrainY.csv", biTrainY, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/biTestX.csv", biTestX, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/biTestX.csv", combinedTestX, delimiter="\t")
     np.savetxt(os.getcwd() + "/data/biTestY.csv", biTestY, delimiter="\t")

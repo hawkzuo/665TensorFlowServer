@@ -39,6 +39,8 @@ More on Database Models:
   https://docs.djangoproject.com/en/2.0/topics/db/queries/#field-lookups-intro
   https://docs.djangoproject.com/en/2.0/topics/db/queries/
 
+Remove all pychache files:
+[At Root]find . -name "*.pyc" -exec rm -f {} \;
 
 
 Admin:  root

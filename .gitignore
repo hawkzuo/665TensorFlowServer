@@ -7,4 +7,6 @@
 # Ignore data file
 *.csv
 
+# Python Cache
+*.pyc
 
