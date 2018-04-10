@@ -1,0 +1,10 @@
+Django root folder is /src/server/mysite
+
+mysite/data     folder is the csv data folder for predicting purposes
+mysite/weights  folder is the stored model that's already trained
+
+mysite/spam/model folder is the root folder of the Training models
+mysite/spam/model/data[weights][summary_logs] folders is used for training models
+
+
+
