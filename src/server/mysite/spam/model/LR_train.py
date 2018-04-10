@@ -12,20 +12,33 @@ def csv_to_numpy_array(filePath, delimiter):
     print(result.shape)
     return result
 
-def import_data():
+# Import data of different Type:
+# 1: basic Bag of Word features matrix
+# 2: Plus Character-level-n-gram features matrix
+
+def import_data(type):
     if "data" not in os.listdir(os.getcwd()):
-        # Untar directory of data if we haven't already
         raise Exception('data', 'not presented')
     else:
-        # we've already extracted the files
         pass
 
-    print("loading training data")
-    train_X = csv_to_numpy_array("data/trainX.csv", delimiter="\t")
-    train_Y = csv_to_numpy_array("data/trainY.csv", delimiter="\t")
-    print("loading test data")
-    test_X = csv_to_numpy_array("data/testX.csv", delimiter="\t")
-    test_Y = csv_to_numpy_array("data/testY.csv", delimiter="\t")
+    if type == 1:
+        print("loading training data")
+        train_X = csv_to_numpy_array("data/trainX.csv", delimiter="\t")
+        train_Y = csv_to_numpy_array("data/trainY.csv", delimiter="\t")
+        print("loading test data")
+        test_X = csv_to_numpy_array("data/testX.csv", delimiter="\t")
+        test_Y = csv_to_numpy_array("data/testY.csv", delimiter="\t")
+    elif type == 2:
+        print("loading training data")
+        train_X = csv_to_numpy_array("data/biTrainX.csv", delimiter="\t")
+        train_Y = csv_to_numpy_array("data/biTrainY.csv", delimiter="\t")
+        print("loading test data")
+        test_X = csv_to_numpy_array("data/biTestX.csv", delimiter="\t")
+        test_Y = csv_to_numpy_array("data/biTestY.csv", delimiter="\t")
+    else:
+        raise Exception('data', 'unsupported type')
+
     return train_X, train_Y, test_X, test_Y
 
 
@@ -33,7 +46,8 @@ def import_data():
 # Function's instance variables use dash lower case
 # Requires Parameter Tunings
 if __name__ == '__main__':
-    trainX, trainY, testX, testY = import_data()
+    workMode = 2
+    trainX, trainY, testX, testY = import_data(workMode)
     # print(trainX.shape)
     # print(trainY.shape)
     # print(testX.shape)
@@ -147,13 +161,13 @@ if __name__ == '__main__':
                 # accuracyLine, = ax1.plot(epoch_values, accuracy_values)
                 # costLine, = ax2.plot(epoch_values, cost_values)
                 # fig.canvas.draw()
-                time.sleep(1)
+                # time.sleep(1)
 
     print("final accuracy on test set: %s" % str(sess.run(accuracy_OP,
                                                           feed_dict={X: testX,
                                                                      tY: testY})))
     saver = tf.train.Saver()
-    saver.save(sess, os.getcwd() + "/weights/trained_variables.ckpt")
+    saver.save(sess, os.getcwd() + "/weights/mode"+str(workMode)+"_trained_variables.ckpt")
     sess.close()
 
 

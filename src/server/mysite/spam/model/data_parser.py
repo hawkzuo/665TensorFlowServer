@@ -6,6 +6,8 @@ from collections import Counter
 import os
 import numpy as np
 
+from nltk import ngrams
+
 
 # Read DATA for SMSSpamCollection
 def parse_raw_input(file_name):
@@ -69,19 +71,70 @@ def create_bag_of_words(training_list, cutoff_frequency):
 
     # throw out low freq words
     freqDist = Counter(rawBagOfWords)
-    bagOfWords = []
+    bag_of_words = []
     for word, freq in freqDist.items():
         if freq > cutoff_frequency:
-            bagOfWords.append(word)
+            bag_of_words.append(word)
 
-    print(len(bagOfWords))
+    print(len(bag_of_words))
 
-    return bagOfWords
+    return bag_of_words
+
+
+# For now, set n==2
+def create_bag_of_n_grams(training_list, cutoff_frequency, n):
+    raw_bag_of_grams = []
+    regex = re.compile("X-Spam.*\n")
+
+    for label, raw in training_list:
+        raw = re.sub(regex, '', raw)
+        tokens = raw.split()
+        bi_grams = ngrams(tokens, 2)
+        for grams in bi_grams:
+            raw_bag_of_grams.append(grams)
+
+    freqDist = Counter(raw_bag_of_grams)
+    bag_of_grams = []
+    for word, freq in freqDist.items():
+        if freq > cutoff_frequency:
+            bag_of_grams.append(word)
+
+    print(len(bag_of_grams))
+    return bag_of_grams
+
+# Generate the feature matrix based on both unigram and ngram
+# For now, only use 2-gram
+def generate_matrix_ngram(data_list, unigram_dict, ngram_dict):
+    featureMatrix = np.zeros(shape=(len(data_list),
+                                    len(unigram_dict) + len(ngram_dict)),
+                             dtype=float)
+    labelMatrix = np.zeros(shape=(len(data_list), 2), dtype=int)
+    regex = re.compile("X-Spam.*\n")
+
+    for i, (label, raw) in enumerate(data_list):
+        raw = re.sub(regex, '', raw)
+        tokens = raw.split()
+        fileUniDist = Counter(tokens)
+        fileUniNGramDist = Counter(ngrams(tokens, 2))
+        for key, value in fileUniDist.items():
+            if key in unigram_dict:
+                featureMatrix[i, unigram_dict[key]] = value
+        for key, value in fileUniNGramDist.items():
+            if key in ngram_dict:
+                featureMatrix[i, len(unigram_dict) + ngram_dict[key]] = value
+
+        if label == 'spam':
+            labelMatrix[i, :] = np.array([1, 0])
+        else:
+            labelMatrix[i, :] = np.array([0, 1])
+
+    return labelMatrix, regularize_matrix(featureMatrix)
+
 
 # Generate the matrix of Math. form for model training
-def generate_matrix(data_list, feature_dict):
+def generate_matrix(data_list, unigram_dict):
     featureMatrix = np.zeros(shape=(len(data_list),
-                                    len(feature_dict)),
+                                    len(unigram_dict)),
                              dtype=float)
     labelMatrix = np.zeros(shape=(len(data_list), 2), dtype=int)
 
@@ -91,12 +144,12 @@ def generate_matrix(data_list, feature_dict):
         tokens = raw.split()
         fileUniDist = Counter(tokens)
         for key, value in fileUniDist.items():
-            if key in feature_dict:
-                featureMatrix[i, feature_dict[key]] = value
+            if key in unigram_dict:
+                featureMatrix[i, unigram_dict[key]] = value
         if label == 'spam':
-            labelMatrix[i, :] = np.array([1,0])
+            labelMatrix[i, :] = np.array([1, 0])
         else:
-            labelMatrix[i, :] = np.array([0,1])
+            labelMatrix[i, :] = np.array([0, 1])
 
     return labelMatrix, regularize_matrix(featureMatrix)
 
@@ -116,26 +169,35 @@ if __name__ == '__main__':
     # folds = split_test_train_data_with_folds(examples, 10)
 
     bagOfWords = create_bag_of_words(train, 5)
+    bagOfBiGrams = create_bag_of_n_grams(train, 5, 2)
 
     # Generate features, this part can be replaced by n-gram and many other features
     # For now, these features are just frequency of words
     features = set(bagOfWords)
     featureDict = {feature: i for i, feature in enumerate(features)}
-
     # print(len(featureDict))
+
+    biGramFeatures = set(bagOfBiGrams)
+    biGramFeatureDict = {feature: i for i, feature in enumerate(biGramFeatures)}
+    # print(len(biGramFeatureDict))
 
     trainY, trainX = generate_matrix(train, featureDict)
     testY, testX = generate_matrix(test, featureDict)
-    print(trainX.shape)
-    print(trainY.shape)
-    print(testX.shape)
-    print(testY.shape)
 
-    np.savetxt(os.getcwd()+"/data/trainX.csv", trainX, delimiter="\t")
-    np.savetxt(os.getcwd()+"/data/trainY.csv", trainY, delimiter="\t")
-    np.savetxt(os.getcwd()+"/data/testX.csv", testX, delimiter="\t")
-    np.savetxt(os.getcwd()+"/data/testY.csv", testY, delimiter="\t")
+    biTrainY, biTrainX = generate_matrix_ngram(train, featureDict, biGramFeatureDict)
+    biTestY, biTestX = generate_matrix_ngram(test, featureDict, biGramFeatureDict)
 
+    # print(trainX.shape)
+    # print(trainY.shape)
+    # print(testX.shape)
+    # print(testY.shape)
 
+    np.savetxt(os.getcwd() + "/data/trainX.csv", trainX, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/trainY.csv", trainY, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/testX.csv", testX, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/testY.csv", testY, delimiter="\t")
 
-
+    np.savetxt(os.getcwd() + "/data/biTrainX.csv", biTrainX, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/biTrainY.csv", biTrainY, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/biTestX.csv", biTestX, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/biTestY.csv", biTestY, delimiter="\t")
