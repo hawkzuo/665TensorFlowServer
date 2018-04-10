@@ -1,0 +1,49 @@
+app-root/manage.py:
+  A CLI for running commands for the project. Like 'rake' 'rails'
+  `python manage.py runserver 8080`
+
+Part1:
+A project consists of many apps.
+Routes Definition:
+  - Add methods[index/show/new/...] on appName/views.py
+  - Add path to urlpatterns on projectName/urls.py
+  - Accept an 'alias' for URL mapping
+
+Part2:
+Database migration command:
+  `python manage.py migrate`
+Migrations diff Rails:
+  The migrations are automatically (instead of arbitrarily) generated.
+  The creation process is based on the definition of models.
+  In Rails, the Model and the DB Migration are separate.
+
+Project should include App to make it work. The name is Qualified Name. Much like spring bean configuration
+Create migration for specific App:
+  `python manage.py makemigrations polls` will generate migration scripts
+  `python manage.py sqlmigrate polls 0001` will DRY-RUN scripts into SQL statements
+  `python manage.py migrate` will execute any pending migrations on DB instances [Non-DRY-RUN]
+
+Interactive Shell:
+  `python manage.py shell`
+  Some Model Relative APIs:
+    - <Choice belongs to Question>
+      Question.objects.all()  Question.objects.get(id=2)
+      Question.objects.filter(id=1) Question.objects.filter(question_text__startswith='What')
+
+      q = Question(question_text="What's new?", pub_date=timezone.now())
+      q.save() q.id q.question_text q.pub_date
+      q.choice_set.all()
+
+More on Database Models:
+  https://docs.djangoproject.com/en/2.0/ref/models/relations/
+  https://docs.djangoproject.com/en/2.0/topics/db/queries/#field-lookups-intro
+  https://docs.djangoproject.com/en/2.0/topics/db/queries/
+
+
+
+Admin:  root
+PW:     19930618aS
+
+
+
+
