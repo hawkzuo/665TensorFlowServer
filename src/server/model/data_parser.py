@@ -3,6 +3,7 @@ import random
 import re
 from collections import Counter
 
+import os
 import numpy as np
 
 
@@ -82,7 +83,7 @@ def generate_matrix(data_list, feature_dict):
     featureMatrix = np.zeros(shape=(len(data_list),
                                     len(feature_dict)),
                              dtype=float)
-    labelMatrix = np.zeros(shape=(len(data_list), 1), dtype=int)
+    labelMatrix = np.zeros(shape=(len(data_list), 2), dtype=int)
 
     regex = re.compile("X-Spam.*\n")
     for i, (label, raw) in enumerate(data_list):
@@ -93,9 +94,9 @@ def generate_matrix(data_list, feature_dict):
             if key in feature_dict:
                 featureMatrix[i, feature_dict[key]] = value
         if label == 'spam':
-            labelMatrix[i, 0] = 1
+            labelMatrix[i, :] = np.array([1,0])
         else:
-            labelMatrix[i, 0] = 0
+            labelMatrix[i, :] = np.array([0,1])
 
     return labelMatrix, regularize_matrix(featureMatrix)
 
@@ -129,10 +130,11 @@ if __name__ == '__main__':
     print(trainY.shape)
     print(testX.shape)
     print(testY.shape)
-    np.savetxt("trainX.csv", trainX, delimiter="\t")
-    np.savetxt("trainY.csv", trainY, delimiter="\t")
-    np.savetxt("testX.csv", testX, delimiter="\t")
-    np.savetxt("testY.csv", testY, delimiter="\t")
+
+    np.savetxt(os.getcwd()+"/data/trainX.csv", trainX, delimiter="\t")
+    np.savetxt(os.getcwd()+"/data/trainY.csv", trainY, delimiter="\t")
+    np.savetxt(os.getcwd()+"/data/testX.csv", testX, delimiter="\t")
+    np.savetxt(os.getcwd()+"/data/testY.csv", testY, delimiter="\t")
 
 
 

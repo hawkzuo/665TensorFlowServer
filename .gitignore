@@ -5,5 +5,5 @@
 *.DS_Store
 
 # Ignore data file
-/src/server/model/*.csv
+/src/server/model/*/*.csv
 
