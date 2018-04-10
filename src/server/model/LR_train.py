@@ -43,7 +43,7 @@ if __name__ == '__main__':
     # print(numFeatures)
     # print(numLabels)
     # print(numTrainExamples)
-    numEpochs = 28000
+    numEpochs = 27000
 
     learningRate = tf.train.exponential_decay(learning_rate=0.0008,
                                               global_step=1,
@@ -119,7 +119,7 @@ if __name__ == '__main__':
             # Run training step
             step = sess.run(training_OP, feed_dict={X: trainX, tY: trainY})
             # Report occasional stats
-            if i % 10 == 0:
+            if i % 100 == 0:
                 # Add epoch to epoch_values
                 epoch_values.append(i)
                 # Generate accuracy stats on test data
@@ -152,7 +152,7 @@ if __name__ == '__main__':
                                                           feed_dict={X: testX,
                                                                      tY: testY})))
     saver = tf.train.Saver()
-    saver.save(sess, "trained_variables.ckpt")
+    saver.save(sess, os.getcwd() + "/weights/trained_variables.ckpt")
     sess.close()
 
 
