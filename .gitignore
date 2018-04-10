@@ -4,5 +4,6 @@
 # Mac OS
 *.DS_Store
 
-
+# Ignore data file
+/src/server/model/*.csv
 

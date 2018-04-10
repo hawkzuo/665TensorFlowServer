@@ -2,16 +2,12 @@ import glob
 import random
 import re
 from collections import Counter
-from itertools import filterfalse
 
 import numpy as np
 
 
 # Read DATA for SMSSpamCollection
 def parse_raw_input(file_name):
-    spam_list = []
-    ham_list = []
-
     examples_list = []
 
     with open(file_name, encoding="latin-1") as f:
@@ -42,6 +38,7 @@ def split_test_train_data(examples_list, percent_test):
 
     return training_dataset, testing_dataset
 
+
 # Generate training data and testing data, via
 # fold_num-fold sampling
 def split_test_train_data_with_folds(examples_list, fold_num):
@@ -57,34 +54,86 @@ def split_test_train_data_with_folds(examples_list, fold_num):
 
     return folds
 
+
 # Create bag of words based on input of list of examples
-def create_bag_of_words(ham_list, spam_list):
-    bagOfWords = []
+def create_bag_of_words(training_list, cutoff_frequency):
+    rawBagOfWords = []
     regex = re.compile("X-Spam.*\n")
 
-    for label, raw in ham_list:
+    for label, raw in training_list:
         raw = re.sub(regex, '', raw)
         tokens = raw.split()
         for token in tokens:
-            bagOfWords.append(token)
-    for label, raw in spam_list:
-        raw = re.sub(regex, '', raw)
-        tokens = raw.split()
-        for token in tokens:
-            bagOfWords.append(token)
+            rawBagOfWords.append(token)
+
+    # throw out low freq words
+    freqDist = Counter(rawBagOfWords)
+    bagOfWords = []
+    for word, freq in freqDist.items():
+        if freq > cutoff_frequency:
+            bagOfWords.append(word)
 
     print(len(bagOfWords))
+
     return bagOfWords
+
+# Generate the matrix of Math. form for model training
+def generate_matrix(data_list, feature_dict):
+    featureMatrix = np.zeros(shape=(len(data_list),
+                                    len(feature_dict)),
+                             dtype=float)
+    labelMatrix = np.zeros(shape=(len(data_list), 1), dtype=int)
+
+    regex = re.compile("X-Spam.*\n")
+    for i, (label, raw) in enumerate(data_list):
+        raw = re.sub(regex, '', raw)
+        tokens = raw.split()
+        fileUniDist = Counter(tokens)
+        for key, value in fileUniDist.items():
+            if key in feature_dict:
+                featureMatrix[i, feature_dict[key]] = value
+        if label == 'spam':
+            labelMatrix[i, 0] = 1
+        else:
+            labelMatrix[i, 0] = 0
+
+    return labelMatrix, regularize_matrix(featureMatrix)
+
+
+def regularize_matrix(feature_matrix):
+    for doc in range(feature_matrix.shape[0]):
+        totalWords = np.sum(feature_matrix[doc, :], axis=0)
+        if totalWords > 0:
+            feature_matrix[doc, :] = np.multiply(feature_matrix[doc, :], (1 / totalWords))
+    return feature_matrix
 
 
 if __name__ == '__main__':
-    dataset_filename = '/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/smsdata/SMSSpamCollection'
-    examples = parse_raw_input(dataset_filename)
-    # train, test = split_test_train_data(examples, .1)
+    datasetFilename = '/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/smsdata/SMSSpamCollection'
+    examples = parse_raw_input(datasetFilename)
+    train, test = split_test_train_data(examples, .1)
+    # folds = split_test_train_data_with_folds(examples, 10)
 
-    folds = split_test_train_data_with_folds(examples, 10)
+    bagOfWords = create_bag_of_words(train, 5)
 
-    # trainX,trainY,testX,testY = reader.input_data(hamDir=hamDir,
-    #                                               spamDir=spamDir,
-    #                                               percentTest=.1,
-    #                                               cutoff=15)
+    # Generate features, this part can be replaced by n-gram and many other features
+    # For now, these features are just frequency of words
+    features = set(bagOfWords)
+    featureDict = {feature: i for i, feature in enumerate(features)}
+
+    # print(len(featureDict))
+
+    trainY, trainX = generate_matrix(train, featureDict)
+    testY, testX = generate_matrix(test, featureDict)
+    print(trainX.shape)
+    print(trainY.shape)
+    print(testX.shape)
+    print(testY.shape)
+    np.savetxt("trainX.csv", trainX, delimiter="\t")
+    np.savetxt("trainY.csv", trainY, delimiter="\t")
+    np.savetxt("testX.csv", testX, delimiter="\t")
+    np.savetxt("testY.csv", testY, delimiter="\t")
+
+
+
+
