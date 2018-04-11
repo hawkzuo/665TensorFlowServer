@@ -3,30 +3,13 @@ import tensorflow as tf
 import tarfile
 import os
 
-def csv_to_numpy_array(filePath, delimiter):
-    return np.genfromtxt(filePath, delimiter=delimiter, dtype=None)
-
-def import_data():
-    if "data" not in os.listdir(os.getcwd()):
-        raise Exception('data', 'not presented')
-
-    else:
-        # we've already extracted the files
-        pass
-
-    print("loading training data")
-    train_X = csv_to_numpy_array("data/trainX.csv", delimiter="\t")
-    train_Y = csv_to_numpy_array("data/trainY.csv", delimiter="\t")
-    print("loading test data")
-    test_X = csv_to_numpy_array("data/testX.csv", delimiter="\t")
-    test_Y = csv_to_numpy_array("data/testY.csv", delimiter="\t")
-    return train_X, train_Y, test_X, test_Y
 
 ###################
 ### IMPORT DATA ###
 ###################
+from server.mysite.spam.model.util import import_data
 
-trainX,trainY,testX,testY = import_data()
+trainX,trainY,testX,testY = import_data(2)
 
 
 #########################

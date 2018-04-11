@@ -201,3 +201,9 @@ if __name__ == '__main__':
     np.savetxt(os.getcwd() + "/data/biTrainY.csv", biTrainY, delimiter="\t")
     np.savetxt(os.getcwd() + "/data/biTestX.csv", combinedTestX, delimiter="\t")
     np.savetxt(os.getcwd() + "/data/biTestY.csv", biTestY, delimiter="\t")
+
+    np.savetxt(os.getcwd() + "/data/gramTrainX.csv", biTrainX, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/gramTrainY.csv", biTrainY, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/gramTestX.csv", biTestX, delimiter="\t")
+    np.savetxt(os.getcwd() + "/data/gramTestY.csv", biTestY, delimiter="\t")
+

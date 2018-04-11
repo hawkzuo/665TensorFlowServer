@@ -6,45 +6,11 @@ import matplotlib.pyplot as plt
 import time
 
 
-# DATA INPUT #
-def csv_to_numpy_array(filePath, delimiter):
-    result = np.genfromtxt(filePath, delimiter=delimiter, dtype=None)
-    print(result.shape)
-    return result
-
-# Import data of different Type:
-# 1: basic Bag of Word features matrix
-# 2: Plus Character-level-n-gram features matrix
-
-def import_data(type):
-    if "data" not in os.listdir(os.getcwd()):
-        raise Exception('data', 'not presented')
-    else:
-        pass
-
-    if type == 1:
-        print("loading training data")
-        train_X = csv_to_numpy_array("data/trainX.csv", delimiter="\t")
-        train_Y = csv_to_numpy_array("data/trainY.csv", delimiter="\t")
-        print("loading test data")
-        test_X = csv_to_numpy_array("data/testX.csv", delimiter="\t")
-        test_Y = csv_to_numpy_array("data/testY.csv", delimiter="\t")
-    elif type == 2:
-        print("loading training data")
-        train_X = csv_to_numpy_array("data/biTrainX.csv", delimiter="\t")
-        train_Y = csv_to_numpy_array("data/biTrainY.csv", delimiter="\t")
-        print("loading test data")
-        test_X = csv_to_numpy_array("data/biTestX.csv", delimiter="\t")
-        test_Y = csv_to_numpy_array("data/biTestY.csv", delimiter="\t")
-    else:
-        raise Exception('data', 'unsupported type')
-
-    return train_X, train_Y, test_X, test_Y
-
-
 # Global variables use JAVA Camel case,
 # Function's instance variables use dash lower case
 # Requires Parameter Tunings
+from server.mysite.spam.model.util import import_data
+
 if __name__ == '__main__':
     workMode = 2
     trainX, trainY, testX, testY = import_data(workMode)
