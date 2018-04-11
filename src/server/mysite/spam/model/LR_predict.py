@@ -7,7 +7,7 @@ import os
 ###################
 ### IMPORT DATA ###
 ###################
-from server.mysite.spam.model.util import import_data
+from .util import import_data
 
 trainX,trainY,testX,testY = import_data(2)
 
@@ -75,7 +75,7 @@ sess.run(init_OP)       #initialize variables BEFORE loading
 
 #load variables from file
 saver = tf.train.Saver()
-saver.restore(sess, os.getcwd() + "/weights/trained_variables.ckpt")
+saver.restore(sess, os.getcwd() + "/weights/mode2_trained_variables.ckpt")
 
 #####################
 ### RUN THE GRAPH ###

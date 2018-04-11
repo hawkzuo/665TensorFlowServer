@@ -19,14 +19,14 @@ def next_batch(batch_size, batch_id, X, Y):
 
 
 if __name__ == '__main__':
-    workMode = 2
+    workMode = 1
     trainX, trainY, testX, testY = import_data(workMode)
     numFeatures = trainX.shape[1]
     numLabels = trainY.shape[1]
     numTrainExamples = trainX.shape[0]
 
     timeSteps = 1
-    hiddenUnits = 200
+    hiddenUnits = 300
     learningRate = tf.train.exponential_decay(learning_rate=0.0008,
                                               global_step=1,
                                               decay_steps=trainX.shape[0],
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     with tf.Session() as sess:
         sess.run(init)
         i = 1
-        while i < 800:
+        while i < 600:
             batch_x, batch_y = next_batch(batch_size=batchSize, batch_id=i, X=trainX, Y=trainY)
 
             batch_x = batch_x.reshape((batch_x.shape[0], timeSteps, numFeatures))

@@ -12,7 +12,7 @@ import time
 from server.mysite.spam.model.util import import_data
 
 if __name__ == '__main__':
-    workMode = 2
+    workMode = 1
     trainX, trainY, testX, testY = import_data(workMode)
     # print(trainX.shape)
     # print(trainY.shape)

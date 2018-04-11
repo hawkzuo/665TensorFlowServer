@@ -63,7 +63,7 @@ def train_neural_network(x):
     correct_predictions_OP = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
     accuracy_OP = tf.reduce_mean(tf.cast(correct_predictions_OP, "float"))
 
-    hm_epochs = 10
+    hm_epochs = 500
 
     init_OP = tf.global_variables_initializer()
     sess = tf.Session()
