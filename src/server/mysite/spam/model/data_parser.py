@@ -159,8 +159,10 @@ def regularize_matrix(feature_matrix):
     return feature_matrix
 
 
+
 if __name__ == '__main__':
-    datasetFilename = '/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/smsdata/SMSSpamCollection'
+    # datasetFilename = '/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/smsdata/SMSSpamCollection'
+    datasetFilename = '/home/amos/Projects/665TensorFlowServer/src/server/smsdata/SMSSpamCollection'
     examples = parse_raw_input(datasetFilename)
     train, test = split_test_train_data(examples, .1)
     # folds = split_test_train_data_with_folds(examples, 10)
@@ -191,19 +193,19 @@ if __name__ == '__main__':
     # print(trainY.shape)
     # print(testX.shape)
     # print(testY.shape)
+    print(os.getcwd())
+    np.savetxt("trainX.csv", trainX, delimiter="\t")
+    np.savetxt("trainY.csv", trainY, delimiter="\t")
+    np.savetxt("testX.csv", testX, delimiter="\t")
+    np.savetxt("testY.csv", testY, delimiter="\t")
 
-    np.savetxt(os.getcwd() + "/data/trainX.csv", trainX, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/trainY.csv", trainY, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/testX.csv", testX, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/testY.csv", testY, delimiter="\t")
+    np.savetxt("biTrainX.csv", combinedTrainX, delimiter="\t")
+    np.savetxt("biTrainY.csv", biTrainY, delimiter="\t")
+    np.savetxt("biTestX.csv", combinedTestX, delimiter="\t")
+    np.savetxt("biTestY.csv", biTestY, delimiter="\t")
 
-    np.savetxt(os.getcwd() + "/data/biTrainX.csv", combinedTrainX, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/biTrainY.csv", biTrainY, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/biTestX.csv", combinedTestX, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/biTestY.csv", biTestY, delimiter="\t")
-
-    np.savetxt(os.getcwd() + "/data/gramTrainX.csv", biTrainX, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/gramTrainY.csv", biTrainY, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/gramTestX.csv", biTestX, delimiter="\t")
-    np.savetxt(os.getcwd() + "/data/gramTestY.csv", biTestY, delimiter="\t")
+    np.savetxt("gramTrainX.csv", biTrainX, delimiter="\t")
+    np.savetxt("gramTrainY.csv", biTrainY, delimiter="\t")
+    np.savetxt("gramTestX.csv", biTestX, delimiter="\t")
+    np.savetxt("gramTestY.csv", biTestY, delimiter="\t")
 
