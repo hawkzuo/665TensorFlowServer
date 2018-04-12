@@ -1,2 +1,0 @@
-model_checkpoint_path: "/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/mysite/spam/model/weights/mode1_trained_variables.ckpt"
-all_model_checkpoint_paths: "/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/mysite/spam/model/weights/mode1_trained_variables.ckpt"

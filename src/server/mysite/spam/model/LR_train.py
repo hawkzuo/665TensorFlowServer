@@ -1,19 +1,16 @@
-import tensorflow as tf
-import numpy as np
-import tarfile
 import os
-import matplotlib.pyplot as plt
-import time
 
+import numpy as np
+import tensorflow as tf
 
 # Global variables use JAVA Camel case,
 # Function's instance variables use dash lower case
 # Requires Parameter Tunings
-from server.mysite.spam.model.util import import_data
+from server.mysite.spam.model.util.data_helper import import_data
 
 if __name__ == '__main__':
-    workMode = 1
-    trainX, trainY, testX, testY = import_data(workMode)
+    dataMode = 2
+    trainX, trainY, testX, testY = import_data(dataMode)
     # print(trainX.shape)
     # print(trainY.shape)
     # print(testX.shape)
@@ -120,8 +117,8 @@ if __name__ == '__main__':
 
                 # generate print statements
                 print("step %d, training accuracy %g" % (i, train_accuracy))
-                print("step %d, cost %g" % (i, newCost))
-                print("step %d, change in cost %g" % (i, diff))
+                # print("step %d, cost %g" % (i, newCost))
+                # print("step %d, change in cost %g" % (i, diff))
 
                 # Plot progress to our two subplots
                 # accuracyLine, = ax1.plot(epoch_values, accuracy_values)
@@ -133,10 +130,7 @@ if __name__ == '__main__':
                                                           feed_dict={X: testX,
                                                                      tY: testY})))
     saver = tf.train.Saver()
-    saver.save(sess, os.getcwd() + "/weights/mode"+str(workMode)+"_trained_variables.ckpt")
+    saver.save(sess, os.getcwd() + "/weights/mode" + str(dataMode) + "_trained_variables.ckpt")
     sess.close()
-
-
-
 
 

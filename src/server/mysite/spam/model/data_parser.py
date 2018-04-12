@@ -1,11 +1,10 @@
-import glob
+import os
+import pickle
 import random
 import re
 from collections import Counter
 
-import os
 import numpy as np
-
 from nltk import ngrams
 
 
@@ -102,53 +101,58 @@ def create_bag_of_n_grams(training_list, cutoff_frequency, n):
     print(len(bag_of_grams))
     return bag_of_grams
 
+
+
 # Generate the feature matrix based on both unigram and ngram
 # For now, only use 2-gram
 def generate_matrix_ngram(data_list, ngram_dict):
-    featureMatrix = np.zeros(shape=(len(data_list),
-                                    len(ngram_dict)),
-                             dtype=float)
-    labelMatrix = np.zeros(shape=(len(data_list), 2), dtype=int)
+    feature_matrix = np.zeros(shape=(len(data_list),
+                                     len(ngram_dict)),
+                              dtype=float)
+    label_matrix = np.zeros(shape=(len(data_list), 2), dtype=int)
     regex = re.compile("X-Spam.*\n")
 
     for i, (label, raw) in enumerate(data_list):
         raw = re.sub(regex, '', raw)
-        tokens = raw.split()
-        fileUniDist = Counter(tokens)
+        # Remove Extra Whitespaces such as '\t' '\n\n\n', etc.
+        # TODO: determine whether or not to remove all the ':' '!' '?' symbols
+        tokens = " ".join(raw.split()).split()
         fileUniNGramDist = Counter(ngrams(tokens, 2))
         for key, value in fileUniNGramDist.items():
             if key in ngram_dict:
-                featureMatrix[i, ngram_dict[key]] = value
+                feature_matrix[i, ngram_dict[key]] = value
 
         if label == 'spam':
-            labelMatrix[i, :] = np.array([1, 0])
+            label_matrix[i, :] = np.array([1, 0])
         else:
-            labelMatrix[i, :] = np.array([0, 1])
+            label_matrix[i, :] = np.array([0, 1])
 
-    return labelMatrix, regularize_matrix(featureMatrix)
+    return label_matrix, regularize_matrix(feature_matrix)
 
 
 # Generate the matrix of Math. form for model training
 def generate_matrix(data_list, unigram_dict):
-    featureMatrix = np.zeros(shape=(len(data_list),
-                                    len(unigram_dict)),
-                             dtype=float)
-    labelMatrix = np.zeros(shape=(len(data_list), 2), dtype=int)
+    feature_matrix = np.zeros(shape=(len(data_list),
+                                     len(unigram_dict)),
+                              dtype=float)
+    label_matrix = np.zeros(shape=(len(data_list), 2), dtype=int)
 
     regex = re.compile("X-Spam.*\n")
     for i, (label, raw) in enumerate(data_list):
         raw = re.sub(regex, '', raw)
-        tokens = raw.split()
+        # Remove Extra Whitespaces such as '\t' '\n\n\n', etc.
+        # TODO: determine whether or not to remove all the ':' '!' '?' symbols
+        tokens = " ".join(raw.split()).split()
         fileUniDist = Counter(tokens)
         for key, value in fileUniDist.items():
             if key in unigram_dict:
-                featureMatrix[i, unigram_dict[key]] = value
+                feature_matrix[i, unigram_dict[key]] = value
         if label == 'spam':
-            labelMatrix[i, :] = np.array([1, 0])
+            label_matrix[i, :] = np.array([1, 0])
         else:
-            labelMatrix[i, :] = np.array([0, 1])
+            label_matrix[i, :] = np.array([0, 1])
 
-    return labelMatrix, regularize_matrix(featureMatrix)
+    return label_matrix, regularize_matrix(feature_matrix)
 
 
 def regularize_matrix(feature_matrix):
@@ -159,10 +163,9 @@ def regularize_matrix(feature_matrix):
     return feature_matrix
 
 
-
 if __name__ == '__main__':
-    # datasetFilename = '/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/smsdata/SMSSpamCollection'
-    datasetFilename = '/home/amos/Projects/665TensorFlowServer/src/server/smsdata/SMSSpamCollection'
+    datasetFilename = '/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/smsdata/SMSSpamCollection'
+    # datasetFilename = '/home/amos/Projects/665TensorFlowServer/src/server/smsdata/SMSSpamCollection'
     examples = parse_raw_input(datasetFilename)
     train, test = split_test_train_data(examples, .1)
     # folds = split_test_train_data_with_folds(examples, 10)
@@ -194,18 +197,27 @@ if __name__ == '__main__':
     # print(testX.shape)
     # print(testY.shape)
     print(os.getcwd())
-    np.savetxt("trainX.csv", trainX, delimiter="\t")
-    np.savetxt("trainY.csv", trainY, delimiter="\t")
-    np.savetxt("testX.csv", testX, delimiter="\t")
-    np.savetxt("testY.csv", testY, delimiter="\t")
+    np.savetxt("data/trainX.csv", trainX, delimiter="\t")
+    np.savetxt("data/trainY.csv", trainY, delimiter="\t")
+    np.savetxt("data/testX.csv", testX, delimiter="\t")
+    np.savetxt("data/testY.csv", testY, delimiter="\t")
 
-    np.savetxt("biTrainX.csv", combinedTrainX, delimiter="\t")
-    np.savetxt("biTrainY.csv", biTrainY, delimiter="\t")
-    np.savetxt("biTestX.csv", combinedTestX, delimiter="\t")
-    np.savetxt("biTestY.csv", biTestY, delimiter="\t")
+    np.savetxt("data/biTrainX.csv", combinedTrainX, delimiter="\t")
+    np.savetxt("data/biTrainY.csv", biTrainY, delimiter="\t")
+    np.savetxt("data/biTestX.csv", combinedTestX, delimiter="\t")
+    np.savetxt("data/biTestY.csv", biTestY, delimiter="\t")
 
-    np.savetxt("gramTrainX.csv", biTrainX, delimiter="\t")
-    np.savetxt("gramTrainY.csv", biTrainY, delimiter="\t")
-    np.savetxt("gramTestX.csv", biTestX, delimiter="\t")
-    np.savetxt("gramTestY.csv", biTestY, delimiter="\t")
+    np.savetxt("data/gramTrainX.csv", biTrainX, delimiter="\t")
+    np.savetxt("data/gramTrainY.csv", biTrainY, delimiter="\t")
+    np.savetxt("data/gramTestX.csv", biTestX, delimiter="\t")
+    np.savetxt("data/gramTestY.csv", biTestY, delimiter="\t")
 
+    f1 = open('data/uniFeature.pickle', 'wb')
+    pickle.dump(featureDict, f1)
+    f1.close()
+    f2 = open('data/biFeature.pickle','wb')
+    pickle.dump(biGramFeatureDict, f2)
+    f2.close()
+
+    # np.save('data/uniFeature.npy', featureDict)
+    # np.save('data/biFeature.npy', biGramFeatureDict)
