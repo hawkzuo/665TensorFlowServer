@@ -7,6 +7,7 @@ import os
 ### IMPORT DATA ###
 ###################
 from .util import data_helper
+# from server.mysite.spam.model.util import data_helper
 
 dataType = 2
 trainX, trainY, testX, testY = data_helper.import_data(dataType)
@@ -102,6 +103,25 @@ def predict(features, goldLabel):
     actual = labelToString(goldLabel)
     print("regression predicts email to be %s and is actually %s" % (prediction, actual))
 
+# Two functions used for server
+def predict_from_raw_input(raw_input):
+    uniMatrix = data_helper.generate_sample_unigram(raw_input, uniFeatureDict)
+    biMatrix = data_helper.generate_sample_ngram(raw_input, biGramFeatureDict)
+    combinedMatrixX = np.concatenate((uniMatrix, biMatrix), axis=1)
+    tensor_prediction = sess.run(activation_OP, feed_dict={X: combinedMatrixX})  # had to make sure that each input in feed_dict was an array
+    print(tensor_prediction)
+    prediction = single_label_to_string(tensor_prediction)
+    return prediction
+
+def single_label_to_string(tensor_prediction):
+    # 2nd vector value > 1st vector value => [0,1] => 'ham'
+    if tensor_prediction[0][1] > tensor_prediction[0][0]:
+        return 'ham'
+    else:
+        return 'spam'
+
+
+
 
 def predict_all(vectorX, vectorY):
     prediction, evaluation = sess.run([activation_OP, accuracy_OP], feed_dict={X: testX, yGold: testY})
@@ -115,9 +135,15 @@ def predict_all(vectorX, vectorY):
 if __name__ == "__main__":
 
     # show predictions and accuracy of entire test set
-    prediction, evaluation = sess.run([activation_OP, accuracy_OP], feed_dict={X: testX, yGold: testY})
+    # prediction, evaluation = sess.run([activation_OP, accuracy_OP], feed_dict={X: testX, yGold: testY})
 
-    for i in range(len(testX)):
-        print("regression predicts email %s to be %s and is actually %s" % (
-        str(i + 1), labelToString(prediction[i]), labelToString(testY[i])))
-    print("overall accuracy of dataset: %s percent" % str(evaluation))
+    # for i in range(len(testX)):
+    #     print("regression predicts email %s to be %s and is actually %s" % (
+    #     str(i + 1), labelToString(prediction[i]), labelToString(testY[i])))
+    # print("overall accuracy of dataset: %s percent" % str(evaluation))
+
+    raw = "I thought slide is enough."
+    predict_from_raw_input(raw)
+
+
+

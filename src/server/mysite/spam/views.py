@@ -41,10 +41,10 @@ def json_request(request):
     corpus = request.GET.get('emailContent','')
     # sample_matrix = Parser.generate_matrix(featureDict, corpus)
     # predict = LR_predict.predict(sample_matrix)
-
-
-    prediction = LR_predict.predict_all(test_X, test_Y)
-    return JsonResponse({'status': 'Failed'})
+    prediction = LR_predict.predict_from_raw_input(corpus)
+    logger.info(prediction)
+    # prediction = LR_predict.predict_all(test_X, test_Y)
+    return JsonResponse({'status': prediction})
 
 def high_freq_spam_words(request):
     # <list>
