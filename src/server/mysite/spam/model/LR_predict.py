@@ -75,6 +75,7 @@ sess.run(init_OP)  # initialize variables BEFORE loading
 
 # load variables from file
 saver = tf.train.Saver()
+print("Load weights from directory: " + str(os.getcwd()) + "/weights")
 saver.restore(sess, os.getcwd() + "/weights/mode" + str(dataMode) + "_trained_variables.ckpt")
 
 

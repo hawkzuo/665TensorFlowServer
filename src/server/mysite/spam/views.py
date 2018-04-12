@@ -8,37 +8,38 @@ from .model import LSTM_predict
 logger = logging.getLogger(__name__)
 # Create your views here.
 
-def json_request_lstm(request):
-    logger.info(request)
-    corpus = request.GET.get('emailContent','')
-    try:
-        prediction = LSTM_predict.predict_from_raw_input(corpus)
-    except Exception:
-        prediction = 'Failed'
-
-    logger.info(prediction)
-    return JsonResponse({'status': prediction})
-
-def json_request_nn(request):
-    logger.info(request)
-    corpus = request.GET.get('emailContent','')
-    return JsonResponse({'status': 'Failed'})
-
-# def json_request_lr(request):
+# def json_request_lstm(request):
 #     logger.info(request)
 #     corpus = request.GET.get('emailContent','')
 #     try:
-#         prediction = LR_predict.predict_from_raw_input(corpus)
+#         prediction = LSTM_predict.predict_from_raw_input(corpus)
 #     except Exception:
 #         prediction = 'Failed'
 #
 #     logger.info(prediction)
 #     return JsonResponse({'status': prediction})
 
+def json_request_nn(request):
+    logger.info(request)
+    corpus = request.GET.get('emailContent','')
+    return JsonResponse({'status': 'Failed'})
+
+def json_request_lr(request):
+    logger.info(request)
+    corpus = request.GET.get('emailContent','')
+    try:
+        prediction = LR_predict.predict_from_raw_input(corpus)
+    except Exception:
+        prediction = 'Failed'
+
+    logger.info(prediction)
+    return JsonResponse({'status': prediction})
+
 
 # This is the final version of the request
 # Root Directory is different in Django server
 # os.getcwd() => ~/Workspaces/CSCE665_project/tensorflow-server/src/server/mysite
+# Can only load 1 model for each configuration
 def json_request(request):
     logger.info(request)
     # import pdb; pdb.set_trace()
