@@ -9,9 +9,9 @@ import os
 from .util import data_helper
 # from server.mysite.spam.model.util import data_helper
 
-dataType = 2
-trainX, trainY, testX, testY = data_helper.import_data(dataType)
-uniFeatureDict, biGramFeatureDict = data_helper.import_features_dict(dataType)
+dataMode = 2
+trainX, trainY, testX, testY = data_helper.import_data(dataMode)
+uniFeatureDict, biGramFeatureDict = data_helper.import_features_dict(dataMode)
 # print("UniFeature size: %s", str(len(uniFeatureDict)))
 # print("BiFeature size: %s", str(len(biGramFeatureDict)))
 
@@ -75,7 +75,7 @@ sess.run(init_OP)  # initialize variables BEFORE loading
 
 # load variables from file
 saver = tf.train.Saver()
-saver.restore(sess, os.getcwd() + "/weights/mode2_trained_variables.ckpt")
+saver.restore(sess, os.getcwd() + "/weights/mode" + str(dataMode) + "_trained_variables.ckpt")
 
 
 #####################
@@ -88,9 +88,9 @@ saver.restore(sess, os.getcwd() + "/weights/mode2_trained_variables.ckpt")
 # method for converting tensor label to string label
 def labelToString(label):
     if np.argmax(label) == 0:
-        return "ham"
-    else:
         return "spam"
+    else:
+        return "ham"
 
 
 # make prediction on a given test set item
@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
     # show predictions and accuracy of entire test set
     # prediction, evaluation = sess.run([activation_OP, accuracy_OP], feed_dict={X: testX, yGold: testY})
-
+    #
     # for i in range(len(testX)):
     #     print("regression predicts email %s to be %s and is actually %s" % (
     #     str(i + 1), labelToString(prediction[i]), labelToString(testY[i])))

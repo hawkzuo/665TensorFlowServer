@@ -1,8 +1,10 @@
+import os
+
 import tensorflow as tf
 from tensorflow.contrib import rnn
 
-
-from server.mysite.spam.model.util import import_data
+# from server.mysite.spam.model.util import import_data
+from server.mysite.spam.model.util.data_helper import import_data
 
 
 def next_batch(batch_size, batch_id, X, Y):
@@ -19,14 +21,14 @@ def next_batch(batch_size, batch_id, X, Y):
 
 
 if __name__ == '__main__':
-    workMode = 1
-    trainX, trainY, testX, testY = import_data(workMode)
+    dataMode = 2
+    trainX, trainY, testX, testY = import_data(dataMode)
     numFeatures = trainX.shape[1]
     numLabels = trainY.shape[1]
     numTrainExamples = trainX.shape[0]
 
     timeSteps = 1
-    hiddenUnits = 300
+    hiddenUnits = 256
     learningRate = tf.train.exponential_decay(learning_rate=0.0008,
                                               global_step=1,
                                               decay_steps=trainX.shape[0],
@@ -65,26 +67,30 @@ if __name__ == '__main__':
 
     # Training Process
     init = tf.global_variables_initializer()
-    with tf.Session() as sess:
-        sess.run(init)
-        i = 1
-        while i < 600:
-            batch_x, batch_y = next_batch(batch_size=batchSize, batch_id=i, X=trainX, Y=trainY)
+    sess = tf.Session()
+    sess.run(init)
 
-            batch_x = batch_x.reshape((batch_x.shape[0], timeSteps, numFeatures))
+    i = 1
+    while i < 270:
+        batch_x, batch_y = next_batch(batch_size=batchSize, batch_id=i, X=trainX, Y=trainY)
 
-            sess.run(opt, feed_dict={x: batch_x, y: batch_y})
+        batch_x = batch_x.reshape((batch_x.shape[0], timeSteps, numFeatures))
 
-            if i % 10 == 0:
-                acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y})
-                los = sess.run(loss, feed_dict={x: batch_x, y: batch_y})
-                print("For iter ", i)
-                print("Accuracy ", acc)
-                print("Loss ", los)
-                print("__________________")
+        sess.run(opt, feed_dict={x: batch_x, y: batch_y})
 
-            i = i + 1
-        print("final accuracy on test set: %s" % str(sess.run(accuracy,
-                                                              feed_dict={x: testX.reshape(testX.shape[0], timeSteps,
-                                                                                          numFeatures),
-                                                                         y: testY})))
+        if i % 10 == 0:
+            acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y})
+            los = sess.run(loss, feed_dict={x: batch_x, y: batch_y})
+            print("For iter ", i)
+            print("Accuracy ", acc)
+            print("Loss ", los)
+            print("__________________")
+
+        i = i + 1
+    print("final accuracy on test set: %s" % str(sess.run(accuracy,
+                                                          feed_dict={x: testX.reshape(testX.shape[0], timeSteps,
+                                                                                      numFeatures),
+                                                                     y: testY})))
+    saver = tf.train.Saver()
+    saver.save(sess, os.getcwd() + "/weights_lstm/lstm_mode" + str(dataMode) + "_trained_variables.ckpt")
+    sess.close()
