@@ -24,16 +24,16 @@ def json_request_nn(request):
     corpus = request.GET.get('emailContent','')
     return JsonResponse({'status': 'Failed'})
 
-def json_request_lr(request):
-    logger.info(request)
-    corpus = request.GET.get('emailContent','')
-    try:
-        prediction = LR_predict.predict_from_raw_input(corpus)
-    except Exception:
-        prediction = 'Failed'
-
-    logger.info(prediction)
-    return JsonResponse({'status': prediction})
+# def json_request_lr(request):
+#     logger.info(request)
+#     corpus = request.GET.get('emailContent','')
+#     try:
+#         prediction = LR_predict.predict_from_raw_input(corpus)
+#     except Exception:
+#         prediction = 'Failed'
+#
+#     logger.info(prediction)
+#     return JsonResponse({'status': prediction})
 
 
 # This is the final version of the request

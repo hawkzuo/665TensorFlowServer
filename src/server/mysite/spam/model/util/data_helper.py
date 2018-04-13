@@ -50,6 +50,40 @@ def import_data(data_type):
 
     return train_X, train_Y, test_X, test_Y
 
+
+def import_data_youtube(data_type):
+    if "data" not in os.listdir(os.getcwd()):
+        raise Exception('data', 'not presented')
+    else:
+        pass
+
+    if data_type == 1:
+        print("loading training data for unigram mode")
+        train_X = csv_to_numpy_array("data/Youtube_trainX.csv", delimiter="\t")
+        train_Y = csv_to_numpy_array("data/Youtube_trainY.csv", delimiter="\t")
+        print("loading test data for unigram mode")
+        test_X = csv_to_numpy_array("data/Youtube_testX.csv", delimiter="\t")
+        test_Y = csv_to_numpy_array("data/Youtube_testY.csv", delimiter="\t")
+    elif data_type == 2:
+        print("loading training data for combined[1,2-gram] mode")
+        train_X = csv_to_numpy_array("data/Youtube_biTrainX.csv", delimiter="\t")
+        train_Y = csv_to_numpy_array("data/Youtube_biTrainY.csv", delimiter="\t")
+        print("loading test data for combined[1,2-gram] mode")
+        test_X = csv_to_numpy_array("data/Youtube_biTestX.csv", delimiter="\t")
+        test_Y = csv_to_numpy_array("data/Youtube_biTestY.csv", delimiter="\t")
+    elif data_type == 3:
+        print("loading training data for bi-gram mode")
+        train_X = csv_to_numpy_array("data/Youtube_gramTrainX.csv", delimiter="\t")
+        train_Y = csv_to_numpy_array("data/Youtube_gramTrainY.csv", delimiter="\t")
+        print("loading test data for bi-gram mode")
+        test_X = csv_to_numpy_array("data/Youtube_gramTestX.csv", delimiter="\t")
+        test_Y = csv_to_numpy_array("data/Youtube_gramTestY.csv", delimiter="\t")
+    else:
+        raise Exception('data', 'unsupported type')
+
+    return train_X, train_Y, test_X, test_Y
+
+
 # Load FeatureDict from disk
 # 1: only unigram features
 # 2: unigram & n-gram features
@@ -82,6 +116,34 @@ def import_features_dict(data_type):
     else:
         raise Exception('data', 'unsupported type')
 
+
+def import_features_dict_youtube(data_type):
+    if "data" not in os.listdir(os.getcwd()):
+        raise Exception('data', 'not presented')
+    else:
+        pass
+
+    if data_type == 1:
+        f1 = open("data/Youtube_uniFeature.pickle", 'rb')
+        uniFeatureDict = pickle.load(f1)
+        f1.close()
+        return uniFeatureDict, None
+    elif data_type == 2:
+        f1 = open("data/Youtube_uniFeature.pickle", 'rb')
+        uniFeatureDict = pickle.load(f1)
+        f1.close()
+        f2 = open("data/Youtube_biFeature.pickle", 'rb')
+        biGramFeatureDict = pickle.load(f2)
+        f2.close()
+
+        return uniFeatureDict, biGramFeatureDict
+    elif data_type == 3:
+        f2 = open("data/Youtube_biFeature.pickle", 'rb')
+        biGramFeatureDict = pickle.load(f2)
+        f2.close()
+        return None, biGramFeatureDict
+    else:
+        raise Exception('data', 'unsupported type')
 
 
 # Generate Unigram features for testing example
