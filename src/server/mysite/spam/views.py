@@ -2,8 +2,8 @@ import os
 import logging
 from django.http import JsonResponse
 from django.shortcuts import render
-# from .model import LR_predict
-from .model import LSTM_predict
+from .model import LR_predict
+# from .model import LSTM_predict
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -47,7 +47,7 @@ def json_request(request):
     # This is the input text data requiring classification
     corpus = request.GET.get('emailContent','')
     try:
-        prediction = LSTM_predict.predict_from_raw_input(corpus)
+        prediction = LR_predict.predict_from_raw_input(corpus)
     except Exception:
         prediction = 'Failed'
 
@@ -56,7 +56,7 @@ def json_request(request):
 
 def high_freq_spam_words(request):
     # <list>
-    return JsonResponse(LSTM_predict.uniFeatureDict)
+    return JsonResponse(LR_predict.uniFeatureDict)
     pass
 
 

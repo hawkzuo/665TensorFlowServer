@@ -16,7 +16,7 @@ if __name__ == '__main__':
     numLabels = trainY.shape[1]
     numTrainExamples = trainX.shape[0]
 
-    numEpochs = 39000
+    numEpochs = 40000
 
     learningRate = tf.train.exponential_decay(learning_rate=0.0008,
                                               global_step=1,
