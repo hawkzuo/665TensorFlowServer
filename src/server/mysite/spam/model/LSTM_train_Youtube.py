@@ -28,13 +28,13 @@ if __name__ == '__main__':
     numTrainExamples = trainX.shape[0]
 
     timeSteps = 1
-    hiddenUnits = 256
+    hiddenUnits = 16
     learningRate = tf.train.exponential_decay(learning_rate=0.0008,
                                               global_step=1,
                                               decay_steps=trainX.shape[0],
                                               decay_rate=0.95,
                                               staircase=True)
-    batchSize = 128
+    batchSize = 32
 
     # weights biases
     outWeights = tf.Variable(tf.random_normal([hiddenUnits, numLabels]))
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     sess.run(init)
 
     i = 1
-    while i < 1300:
+    while i < 900:
         batch_x, batch_y = next_batch(batch_size=batchSize, batch_id=i, X=trainX, Y=trainY)
 
         batch_x = batch_x.reshape((batch_x.shape[0], timeSteps, numFeatures))

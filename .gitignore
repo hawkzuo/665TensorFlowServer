@@ -11,3 +11,5 @@
 *.pyc
 
 src/server/smsdata/01
+src/server/mysite/spam/model/weights
+src/server/mysite/spam/model/weights_lstm

@@ -64,7 +64,7 @@ def train_neural_network(x):
     correct_predictions_OP = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
     accuracy_OP = tf.reduce_mean(tf.cast(correct_predictions_OP, "float"))
 
-    hm_epochs = 35
+    hm_epochs = 56
 
     init_OP = tf.global_variables_initializer()
     sess = tf.Session()
@@ -79,7 +79,7 @@ def train_neural_network(x):
 
             epoch_accuracy = max(epoch_accuracy, train_accuracy)
             epoch_cost = min(epoch_cost, c)
-        if epoch % 20 == 0:
+        if epoch % 2 == 0:
             print('Epoch', epoch, 'Accuracy', epoch_accuracy,'cost:', epoch_cost )
 
     # correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
