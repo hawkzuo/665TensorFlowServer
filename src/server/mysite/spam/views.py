@@ -2,7 +2,8 @@ import os
 import logging
 from django.http import JsonResponse
 from django.shortcuts import render
-from .model import LR_predict
+# from .model import LR_predict
+from .model import LR_predict_Youtube
 # from .model import LSTM_predict
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,21 @@ def json_request(request):
     # This is the input text data requiring classification
     corpus = request.GET.get('emailContent','')
     try:
-        prediction = LR_predict.predict_from_raw_input(corpus)
+        prediction = LR_predict_Youtube.predict_from_raw_input(corpus)
+    except Exception:
+        prediction = 'Failed'
+
+    logger.info(prediction)
+    return JsonResponse({'status': prediction})
+
+def json_request_youtube(request):
+    logger.info(request)
+    # import pdb; pdb.set_trace()
+
+    # This is the input text data requiring classification
+    corpus = request.GET.get('emailContent','')
+    try:
+        prediction = LR_predict_Youtube.predict_from_raw_input(corpus)
     except Exception:
         prediction = 'Failed'
 
@@ -56,7 +71,7 @@ def json_request(request):
 
 def high_freq_spam_words(request):
     # <list>
-    return JsonResponse(LR_predict.uniFeatureDict)
+    return JsonResponse(LR_predict_Youtube.uniFeatureDict)
     pass
 
 
