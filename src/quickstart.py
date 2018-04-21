@@ -5,6 +5,7 @@ Lists the user's Gmail labels.
 """
 from __future__ import print_function
 
+import quopri
 from time import sleep
 
 from googleapiclient import errors
@@ -27,6 +28,10 @@ INBOX_FLAG = 'INBOX'
 
 # Charsets
 readable_encodings = {'quoted-printable'}
+readable_charsets = {'us-ascii', 'US-ASCII',
+                     'utf-8', 'UTF-8',
+                     'iso-8859-1', 'ISO-8859-1',
+                     'ascii', 'ASCII'}
 
 # Setup the Gmail API
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
@@ -108,15 +113,25 @@ def save_messages_to_disk(filename, service):
         os.mkdir(out_prefix + '/ionly')
     inbox_only_count = 0
     all_count = 0
+
     with open(filename, 'r', newline='') as f:
         reader = csv.DictReader(f)
+        counter = 0
         for row in reader:
+            counter += 1
+            if counter < 0+666:
+                continue
             labels, message = GetSingleMessageWithId(row['id'], service)
+
+            if row['id'] == '162cf0f6bca59aca':
+                print('here')
+
             if len(labels) >= 1:
                 # Parse the message to gain the plain contents first
                 readable_txt, readable_web = parse_single_email_to_plain(message)
-                readable_web.replace('=','')
+                readable_web.replace('=', '')
 
+                atext = ''
                 if len(readable_web) > 10:
                     try:
                         soup = BeautifulSoup(readable_web, "html5lib")
@@ -124,26 +139,36 @@ def save_messages_to_disk(filename, service):
                         print(e)
                         sleep(6)
                         continue
-                    # kill all script and style elements
-                    for script in soup(["script", "style"]):
-                        script.extract()  # rip it out
-                    # kill all comments
-                    comments = soup.findAll(text=lambda text: isinstance(text, Comment))
-                    for comment in comments:
-                        comment.extract()
-                    # TODO: kill all special characters
-                    soup.prettify(formatter=lambda s: s.replace(u'\xa0', ' '))
-
-                    atext = soup.get_text().replace('=', '')
-
+                    atext = pretty_soup_text(soup)
                 if PROMOTION_FLAG in labels or SOCIAL_FLAG in labels:
                     # save to hamout root folder
-                    print('hamout')
+                    pass
                 else:
                     # save to ionly folder
-                    print('ionly')
+                    if len(readable_txt) + len(atext) > 40:
+                        with open(out_prefix + '/' + row['id'] + '_p.txt', 'w') as fo:
+                            fo.write(readable_txt + atext)
                     inbox_only_count += 1
+                if len(readable_txt) + len(atext) > 40:
+                    with open(out_prefix + '/ionly/' + row['id'] + '_p.txt', 'w') as fo:
+                        fo.write(readable_txt + atext)
                 all_count += 1
+            print('all count:', all_count)
+            sleep(0.1)
+
+
+def pretty_soup_text(soup):
+    # kill all script and style elements
+    for script in soup(["script", "style"]):
+        script.extract()  # rip it out
+    # kill all comments
+    comments = soup.findAll(text=lambda text: isinstance(text, Comment))
+    for comment in comments:
+        comment.extract()
+    # TODO: kill all special characters
+    soup.prettify(formatter=lambda s: s.replace(u'\xa0', ' '))
+
+    return soup.get_text().replace('=', '')
 
 
 # Single Email Message Parser
@@ -160,20 +185,39 @@ def parse_single_email_to_plain(msg):
     else:
         content_type = msg.get('Content-Type').split(';')
         text_type = content_type[0].split('/')[1]
-        charset = content_type[1].replace(' ', '').replace('"', '').split('=')[1] if len(content_type) >= 2 else None
+
+        charset_options = content_type[1].replace(' ', '').replace('"', '').split('=') if len(
+            content_type) >= 2 else None
+        charset = charset_options[1] if charset_options and 'charset' in charset_options[0] else None
+
         content_encoding = msg.get('Content-Transfer-Encoding')
 
-        if content_encoding in readable_encodings:
+        if content_encoding and content_encoding.lower() == 'base64':
+            # Try decoders first
+            raw_bytes = base64.b64decode(msg.get_payload())
+            if text_type == 'html':
+                web_string += raw_bytes.decode(charset or 'utf-8', errors='strict')
+            elif text_type == 'plain':
+                text_string += raw_bytes.decode(charset or 'utf-8', errors='strict')
+        elif content_encoding and content_encoding.lower() == '7bit':
+            try:
+                raw_bytes = quopri.decodestring(msg.get_payload())
+                if text_type == 'html':
+                    web_string += raw_bytes.decode('utf-8', errors='ignore')
+                elif text_type == 'plain':
+                    text_string += raw_bytes.decode('utf-8', errors='ignore')
+            except ValueError:
+                if text_type == 'html':
+                    web_string += msg.get_payload()
+                elif text_type == 'plain':
+                    text_string += msg.get_payload()
+        elif content_encoding in readable_encodings or charset in readable_charsets:
             if text_type == 'html':
                 web_string += msg.get_payload()
             elif text_type == 'plain':
                 text_string += msg.get_payload()
-        elif content_encoding.lower() == 'base64':
-            raw_bytes = base64.b64decode(msg.get_payload())
-            if text_type == 'html':
-                web_string += raw_bytes.decode(charset, errors='strict')
-            elif text_type == 'plain':
-                text_string += raw_bytes.decode(charset, errors='strict')
+        else:
+            print('here')
 
     return text_string, web_string
 
