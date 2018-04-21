@@ -102,9 +102,15 @@ def parse_email_contents(month, year, save_to_file=False, verbose=False, ignore_
     folder_prefix = '../../data/m' + str(year) + str(month)
     out_prefix = '../../dataout/m' + str(year) + str(month)
 
+    if len(os.listdir(out_prefix)) == 0:
+        os.mkdir(out_prefix+'/w')
+        os.mkdir(out_prefix+'/p')
+
     total_emails = len(os.listdir(folder_prefix))
-    if total_emails > 60000:
-        total_emails = 60000
+    # if total_emails > 60000:
+    #     total_emails = 60000
+    print('total mail to be parsed:\n', total_emails)
+    sleep(2)
     total_valid_emails = 0
 
     parser = Parser()
@@ -138,10 +144,10 @@ def parse_email_contents(month, year, save_to_file=False, verbose=False, ignore_
 
                 if save_to_file:
                     if len(whole_web_page_content) > 10:
-                        with open(out_prefix + '/ParsedMail' + str(total_valid_emails) + '_Web.txt', 'w') as fo:
+                        with open(out_prefix + '/w/Mail' + str(total_valid_emails) + '.txt', 'w') as fo:
                             fo.write(whole_web_page_content)
                     if len(whole_plain_content) > 10:
-                        with open(out_prefix + '/ParsedMail' + str(total_valid_emails) + '_Plain.txt', 'w') as fo:
+                        with open(out_prefix + '/p/Mail' + str(total_valid_emails) + '.txt', 'w') as fo:
                             fo.write(whole_plain_content)
 
             if verbose:
@@ -149,6 +155,8 @@ def parse_email_contents(month, year, save_to_file=False, verbose=False, ignore_
                 sleep(2)
 
     #
+    with open(out_prefix + '/total.txt', 'w') as fo:
+        fo.write(str(total_valid_emails))
     print('\nFinished processing for month', month, 'year', year, 'parsing requests')
     print('Total mails:', total_emails)
     print('Total valid mails:', total_valid_emails)
@@ -158,7 +166,7 @@ if __name__ == '__main__':
     # parse_email_contents('01', '2016', verbose=False, save_to_file=True)
     # parse_email_contents('02', '2016', verbose=False)
 
-    # parse_email_contents('01', '2018', verbose=False, save_to_file=True)
+    parse_email_contents('01', '2018', verbose=False, save_to_file=True)
     # parse_email_contents('02', '2018', verbose=False, save_to_file=True)
     # parse_email_contents('03', '2018', verbose=False, save_to_file=True)
     # parse_email_contents('04', '2018', verbose=False, save_to_file=True)
