@@ -6,5 +6,5 @@ mysite/weights  folder is the stored model that's already trained
 mysite/spam/model folder is the root folder of the Training models
 mysite/spam/model/data[weights][summary_logs] folders is used for training models
 
-
+'ls | wc -l'
 

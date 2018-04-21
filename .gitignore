@@ -10,6 +10,7 @@
 # Python Cache
 *.pyc
 
-src/server/smsdata/01
+src/server/smsdata/*/*.txt
 src/server/mysite/spam/model/weights
 src/server/mysite/spam/model/weights_lstm
+out/
