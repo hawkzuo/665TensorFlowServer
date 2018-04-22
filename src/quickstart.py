@@ -27,7 +27,7 @@ SOCIAL_FLAG = 'CATEGORY_SOCIAL'
 INBOX_FLAG = 'INBOX'
 
 # Charsets
-readable_encodings = {'quoted-printable'}
+readable_encodings = {'quoted-printable', 'Quoted-printable'}
 readable_charsets = {'us-ascii', 'US-ASCII',
                      'utf-8', 'UTF-8',
                      'iso-8859-1', 'ISO-8859-1',
@@ -110,7 +110,7 @@ def GetSingleMessageWithId(msg_id, service):
 def save_messages_to_disk(filename, service):
     out_prefix = '../../hamout'
     if len(os.listdir(out_prefix)) == 0:
-        os.mkdir(out_prefix + '/ionly')
+        os.mkdir(out_prefix + '/overall')
     inbox_only_count = 0
     all_count = 0
 
@@ -119,12 +119,10 @@ def save_messages_to_disk(filename, service):
         counter = 0
         for row in reader:
             counter += 1
-            if counter < 0+666:
+            if counter < 0+860:
+                all_count += 1
                 continue
             labels, message = GetSingleMessageWithId(row['id'], service)
-
-            if row['id'] == '162cf0f6bca59aca':
-                print('here')
 
             if len(labels) >= 1:
                 # Parse the message to gain the plain contents first
@@ -146,11 +144,11 @@ def save_messages_to_disk(filename, service):
                 else:
                     # save to ionly folder
                     if len(readable_txt) + len(atext) > 40:
-                        with open(out_prefix + '/' + row['id'] + '_p.txt', 'w') as fo:
+                        with open(out_prefix + '/' + str(all_count) + '_' + row['id'] + '_p.txt', 'w') as fo:
                             fo.write(readable_txt + atext)
                     inbox_only_count += 1
                 if len(readable_txt) + len(atext) > 40:
-                    with open(out_prefix + '/ionly/' + row['id'] + '_p.txt', 'w') as fo:
+                    with open(out_prefix + '/overall/' + str(all_count) + '_' + row['id'] + '_p.txt', 'w') as fo:
                         fo.write(readable_txt + atext)
                 all_count += 1
             print('all count:', all_count)
@@ -183,8 +181,12 @@ def parse_single_email_to_plain(msg):
             text_string += step_text
             web_string += step_web
     else:
-        content_type = msg.get('Content-Type').split(';')
-        text_type = content_type[0].split('/')[1]
+        content_type = msg.get('Content-Type')
+        text_type = content_type.split(';')[0].split('/')[1] if content_type else None
+
+        if text_type is None:
+            text_string += msg.get_payload()
+            return text_string, web_string
 
         charset_options = content_type[1].replace(' ', '').replace('"', '').split('=') if len(
             content_type) >= 2 else None
@@ -196,9 +198,9 @@ def parse_single_email_to_plain(msg):
             # Try decoders first
             raw_bytes = base64.b64decode(msg.get_payload())
             if text_type == 'html':
-                web_string += raw_bytes.decode(charset or 'utf-8', errors='strict')
+                web_string += raw_bytes.decode(charset or 'utf-8', errors='ignore')
             elif text_type == 'plain':
-                text_string += raw_bytes.decode(charset or 'utf-8', errors='strict')
+                text_string += raw_bytes.decode(charset or 'utf-8', errors='ignore')
         elif content_encoding and content_encoding.lower() == '7bit':
             try:
                 raw_bytes = quopri.decodestring(msg.get_payload())
@@ -217,6 +219,11 @@ def parse_single_email_to_plain(msg):
             elif text_type == 'plain':
                 text_string += msg.get_payload()
         else:
+            if text_type == 'html':
+                web_string += msg.get_payload()
+            elif text_type == 'plain':
+                text_string += msg.get_payload()
+            # text_string += msg.get_payload()
             print('here')
 
     return text_string, web_string
@@ -239,7 +246,7 @@ if __name__ == '__main__':
     # Gain Message IDs
     # save_user_message_ids_to_csv_file()
 
-    #
+    # Gain Message Bodies
     save_messages_to_disk('test.csv', simple_service)
 
     pass
