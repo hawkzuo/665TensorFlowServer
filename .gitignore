@@ -15,5 +15,11 @@ src/server/mysite/spam/model/weights
 src/server/mysite/spam/model/weights_lstm
 out/
 
+# weights too large to push to github
+src/server/mysite/weights
+src/server/mysite/weights_lstm
+src/server/mysite/spam/model/gmail/weights
+src/server/mysite/spam/model/gmail/weights_lstm
+
 # ignore credentials
 src/*.json
