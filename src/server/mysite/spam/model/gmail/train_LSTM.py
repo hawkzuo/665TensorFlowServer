@@ -33,10 +33,9 @@ if __name__ == '__main__':
     numLabels = trainY.shape[1]
     numTrainExamples = trainX.shape[0]
 
-    struct = {'features': numFeatures, 'labels': numLabels, 'examples':numTrainExamples}
+    struct = {'features': numFeatures, 'labels': numLabels, 'examples': numTrainExamples}
     with open('features/structure.pickle', 'wb') as f:
         pickle.dump(struct, f)
-
 
     timeSteps = 1
     hiddenUnits = 256
@@ -45,7 +44,7 @@ if __name__ == '__main__':
                                               decay_steps=trainX.shape[0],
                                               decay_rate=0.95,
                                               staircase=True)
-    batchSize = 128
+    batchSize = numTrainExamples // 10
 
     # weights biases
     outWeights = tf.Variable(tf.random_normal([hiddenUnits, numLabels]))
@@ -90,11 +89,15 @@ if __name__ == '__main__':
         sess.run(opt, feed_dict={x: batch_x, y: batch_y})
 
         if i % 10 == 0:
-            acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y})
-            los = sess.run(loss, feed_dict={x: batch_x, y: batch_y})
+            # acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y})
+            # los = sess.run(loss, feed_dict={x: batch_x, y: batch_y})
+
+            total_acc = sess.run(accuracy, feed_dict={x: trainX.reshape(trainX.shape[0], timeSteps,
+                                                                        numFeatures),
+                                                      y: trainY})
             print("For iter ", i)
-            print("Accuracy ", acc)
-            print("Loss ", los)
+            print("Total Accuracy ", total_acc)
+            # print("Loss ", los)
             print("__________________")
 
         i = i + 1
