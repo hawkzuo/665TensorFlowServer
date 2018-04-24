@@ -52,9 +52,16 @@ def pretty_soup_text(soup):
     for comment in comments:
         comment.extract()
     # TODO: kill all special characters
-    soup.prettify(formatter=lambda s: s.replace(u'\xa0', ' '))
+    try:
+        soup.prettify(formatter=lambda s: s.replace(u'\xa0', ' '))
+    except RecursionError:
+        pass
+    try:
+        text_body = soup.get_text()
+    except Exception:
+        text_body = ''
 
-    return soup.get_text().replace('=', '')
+    return text_body.replace('=', '')
 
 
 # TODO: Filter out some other types, called [Lemmatization]
@@ -160,12 +167,14 @@ def parse_spam_emails(year, month):
     with open(in_prefix + '/total.txt', 'r') as ft:
         total = int(ft.read())
 
+    print('Total:', total)
+
     plain_parts = set(os.listdir(in_prefix + '/p'))
     web_parts = set(os.listdir(in_prefix + '/w'))
 
     for i in range(1, total + 1):
 
-        if i % 300 == 0:
+        if i % 200 == 0:
             print('Progress', i, '/', total)
 
         step_mail_name = 'Mail' + str(i) + '.txt'
@@ -213,8 +222,8 @@ def parse_spam_emails(year, month):
         with open(out_prefix + '/m' + str(i) + '.pickle', 'wb') as fp:
             pickle.dump(result_dict, fp)
 
-        sleep(0.02)
-    print('Finished\n')
+        sleep(0.002)
+    print('Finished processing for month', month, 'year', year, 'parsing requests\n')
     pass
 
 
@@ -249,6 +258,7 @@ if __name__ == '__main__':
     # parse_spam_emails('2018', '01')
     # parse_spam_emails('2017', '12')
     # parse_spam_emails('2017', '11')
+    pass
 
     # Test set for 2017
     # parse_spam_emails('2017', '10')
@@ -261,22 +271,71 @@ if __name__ == '__main__':
     # parse_spam_emails('2017', '03')
     # parse_spam_emails('2017', '02')
     # parse_spam_emails('2017', '01')
+    pass
 
     # Test set for 2016
     # parse_spam_emails('2016', '12')
     # parse_spam_emails('2016', '11')
     # parse_spam_emails('2016', '10')
     # parse_spam_emails('2016', '09')
-    parse_spam_emails('2016', '08')
-    parse_spam_emails('2016', '07')
-    parse_spam_emails('2016', '06')
-    parse_spam_emails('2016', '05')
-    parse_spam_emails('2016', '04')
-    parse_spam_emails('2016', '03')
-    parse_spam_emails('2016', '02')
-    parse_spam_emails('2016', '01')
+    # parse_spam_emails('2016', '08')
+    # parse_spam_emails('2016', '07')
+    # parse_spam_emails('2016', '06')
+    # parse_spam_emails('2016', '05')
+    # parse_spam_emails('2016', '04')
+    # parse_spam_emails('2016', '03')
+    # parse_spam_emails('2016', '02')
+    # parse_spam_emails('2016', '01')
+    pass
 
-    print('Finished')
+    # Test set for 2015
+    # parse_spam_emails('2015', '12')
+    # parse_spam_emails('2015', '11')
+    # parse_spam_emails('2015', '10')
+    # parse_spam_emails('2015', '09')
+    # parse_spam_emails('2015', '08')
+    # parse_spam_emails('2015', '07')
+    # parse_spam_emails('2015', '06')
+    # parse_spam_emails('2015', '05')
+    # parse_spam_emails('2015', '04')
+    # parse_spam_emails('2015', '03')
+    # parse_spam_emails('2015', '02')
+    # parse_spam_emails('2015', '01')
+    pass
+
+    # Test set for 2014
+    # parse_spam_emails('2014', '12')
+    # parse_spam_emails('2014', '11')
+    # parse_spam_emails('2014', '10')
+    # parse_spam_emails('2014', '09')
+    # parse_spam_emails('2014', '08')
+    # parse_spam_emails('2014', '07')
+    # parse_spam_emails('2014', '06')
+    # parse_spam_emails('2014', '05')
+    # parse_spam_emails('2014', '04')
+    # parse_spam_emails('2014', '03')
+    # parse_spam_emails('2014', '02')
+    # parse_spam_emails('2014', '01')
+    pass
+
+    # Test set for 2013
+    # parse_spam_emails('2013', '12')
+    # parse_spam_emails('2013', '11')
+    # parse_spam_emails('2013', '10')
+    # parse_spam_emails('2013', '09')
+    # parse_spam_emails('2013', '08')
+    # parse_spam_emails('2013', '07')
+    # parse_spam_emails('2013', '06')
+    # parse_spam_emails('2013', '05')
+    # parse_spam_emails('2013', '04')
+    # parse_spam_emails('2013', '03')
+    # parse_spam_emails('2013', '02')
+    # parse_spam_emails('2013', '01')
+    pass
+
+
+
+    print('Finished all requests')
 
 # String
 # Method	Functionality

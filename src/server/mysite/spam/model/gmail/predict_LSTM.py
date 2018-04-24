@@ -12,13 +12,15 @@ uniFeatureDict, biGramFeatureDict, triGramFeatureDict = data_helper_gmail.import
 numFeatures, numLabels, numTrainExamples = data_helper_gmail.import_structure()
 
 timeSteps = 1
-hiddenUnits = 256
+hiddenUnits = 512
+desiredBatches = 60
+
 learningRate = tf.train.exponential_decay(learning_rate=0.0008,
                                           global_step=1,
                                           decay_steps=numTrainExamples,
                                           decay_rate=0.95,
                                           staircase=True)
-batchSize = 128
+batchSize = numTrainExamples // desiredBatches
 
 # weights biases
 outWeights = tf.Variable(tf.random_normal([hiddenUnits, numLabels]))

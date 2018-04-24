@@ -8,7 +8,6 @@
 
 # Train-Test Split: Either 80-20 or 70-30
 
-# 201804-201711: [3576-2, 16468-2, 5910-2, 12485-2, 12870-2, 23425-2]
 import numpy as np
 import os
 import pickle
@@ -68,9 +67,9 @@ def split_test_train_data(examples_list, ratio):
     testing_dataset = set(random.sample(examples_list, numTest))
     training_dataset = set(x for x in examples_list if x not in testing_dataset)
 
-    print(len(examples_list))
-    print(len(testing_dataset))
-    print(len(training_dataset))
+    print('Total examples', len(examples_list))
+    print('Test examples', len(testing_dataset))
+    print('Train examples', len(training_dataset))
 
     return training_dataset, testing_dataset
 
@@ -126,7 +125,7 @@ def create_bag_of_n_grams(training_list, cutoff_frequency, n):
         if freq > cutoff_frequency:
             bag_of_grams.append(word)
 
-    print('Length of N-gram words: ', len(bag_of_grams))
+    print('Length of ', n, 'gram words: ', len(bag_of_grams))
     return bag_of_grams
 
 

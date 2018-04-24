@@ -5,7 +5,8 @@ from collections import Counter
 import numpy as np
 from nltk import ngrams
 
-from email_processor import generate_tokens_from_parsed_soup_text
+from server.mysite.spam.model.gmail.email_processor import generate_tokens_from_parsed_soup_text
+
 
 def csv_to_numpy_array(filePath, delimiter):
     result = np.genfromtxt(filePath, delimiter=delimiter, dtype=None)

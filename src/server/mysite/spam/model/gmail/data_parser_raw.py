@@ -159,6 +159,7 @@ def parse_email_contents(month, year, save_to_file=False, verbose=False, ignore_
             if verbose:
                 print('web:\n', whole_web_page_content, '\nplain:\n', whole_plain_content)
                 sleep(2)
+        sleep(0.002)
 
     #
     with open(out_prefix + '/total.txt', 'w') as fo:
