@@ -8,6 +8,9 @@ from email.parser import Parser
 # Handling some other charsets such as:
 from time import sleep
 
+# This script mainly removes the headers and gathers
+# useful information from data source and save to text file
+
 non_readable_charsets = {'GB2312', '"gb2312',
                          'so-2022-j', 'iso-2022-jp', 'iso-2022-JP',
                          'shift_jis', 'Shift_JIS',
@@ -19,12 +22,10 @@ direct_readable_charsets = {'UTF-8', 'utf-8', 'tf-', 'TF-', '"utf-8', ' "utf-8',
 
 logger = logging.getLogger('data_parser_new')
 
-
 # Insights: only do UTF-8 encoding data
 # Reason: Consistency ++ other charset help little between each other
 
-
-
+DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
 
 
 # Parse a single payload's data
@@ -80,14 +81,16 @@ def parse_single_payload(payload, mail_no, ignore_error=True):
         elif assigned_charset in non_readable_charsets:
             pass
         else:
-            raw_bytes = quopri.decodestring(payload.get_payload())
-            readable_string = raw_bytes.decode('utf-8', errors=error_flag)
-
+            try:
+                raw_bytes = quopri.decodestring(payload.get_payload())
+                readable_string = raw_bytes.decode('utf-8', errors=error_flag)
+            except ValueError:
+                pass
     if is_plain_text:
-        step_plain_content += readable_string
+        step_plain_content += str(readable_string)
     else:
         # Default is webpage
-        step_web_page_content += readable_string
+        step_web_page_content += str(readable_string)
 
     return step_plain_content, step_web_page_content
 
@@ -99,15 +102,14 @@ def parse_email_contents(month, year, save_to_file=False, verbose=False, ignore_
 
     # data folder is outside the project scope
     # otherwise IDE will report error
-    in_prefix = '../../data/m' + str(year) + str(month)
-    out_prefix = '../../dataout/m' + str(year) + str(month)
+    in_prefix = DATA_PREFIX + 'rawdata/m' + str(year) + str(month)
+    out_prefix = DATA_PREFIX + 'dataout/m' + str(year) + str(month)
 
     if len(os.listdir(out_prefix)) == 0:
-        os.mkdir(out_prefix+'/w')
-        os.mkdir(out_prefix+'/p')
+        os.mkdir(out_prefix + '/w')
+        os.mkdir(out_prefix + '/p')
     total_emails = len(os.listdir(in_prefix))
-    # if total_emails > 60000:
-    #     total_emails = 60000
+
     print('total mail to be parsed:\n', total_emails)
     sleep(2)
     total_valid_emails = 0
@@ -117,12 +119,15 @@ def parse_email_contents(month, year, save_to_file=False, verbose=False, ignore_
     for mail_no in range(total_emails):
         whole_plain_content = ''
         whole_web_page_content = ''
+        if mail_no % 500 == 0:
+            print('Progress', mail_no, '/', total_emails)
+
         with open(in_prefix + '/Mail' + str(mail_no) + '.txt', 'r') as f:
             try:
                 msg = parser.parse(f)
             except UnicodeDecodeError:
                 logger.info('[Cannot Parse UTF] on mail', mail_no)
-                print('Mail', mail_no, 'cannot be viewed as UTF-8')
+                # print('Mail', mail_no, '-- no UTF')
                 continue
             # The best way to solve the payload problem is to Imp. a
             # recursive function, however, since the depth=2 case is actually
@@ -140,7 +145,6 @@ def parse_email_contents(month, year, save_to_file=False, verbose=False, ignore_
                 except ValueError:
                     pass
 
-            print('Mail', mail_no, 'parsed')
             if len(whole_web_page_content) > 10 or len(whole_plain_content) > 10:
                 total_valid_emails += 1
 
@@ -160,20 +164,89 @@ def parse_email_contents(month, year, save_to_file=False, verbose=False, ignore_
     with open(out_prefix + '/total.txt', 'w') as fo:
         fo.write(str(total_valid_emails))
     print('\nFinished processing for month', month, 'year', year, 'parsing requests')
-    print('Total mails:', total_emails)
-    print('Total valid mails:', total_valid_emails)
+    print('Total parsed:', total_emails)
+    print('Total valid:', total_valid_emails)
+    sleep(2)
 
 
 if __name__ == '__main__':
+
+    # 2013 Spam Collections for test
+    parse_email_contents('01', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('02', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('03', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('04', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('05', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('06', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('07', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('08', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('09', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('10', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('11', '2013', verbose=False, save_to_file=True)
+    parse_email_contents('12', '2013', verbose=False, save_to_file=True)
+
+    pass
+    # 2014 Spam Collections for test
+    # parse_email_contents('01', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('02', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('03', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('04', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('05', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('06', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('07', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('08', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('09', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('10', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('11', '2014', verbose=False, save_to_file=True)
+    # parse_email_contents('12', '2014', verbose=False, save_to_file=True)
+
+    pass
+    # 2015 Spam Collections for test
+    # parse_email_contents('01', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('02', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('03', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('04', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('05', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('06', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('07', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('08', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('09', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('10', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('11', '2015', verbose=False, save_to_file=True)
+    # parse_email_contents('12', '2015', verbose=False, save_to_file=True)
+
+    pass
+    # 2016 Spam Collections for test
     # parse_email_contents('01', '2016', verbose=False, save_to_file=True)
-    # parse_email_contents('02', '2016', verbose=False)
+    # parse_email_contents('02', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('03', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('04', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('05', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('06', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('07', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('08', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('09', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('10', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('11', '2016', verbose=False, save_to_file=True)
+    # parse_email_contents('12', '2016', verbose=False, save_to_file=True)
 
-    parse_email_contents('11', '2017', verbose=False, save_to_file=True)
+    pass
+    # 2017 Spams collected for test
+    # parse_email_contents('01', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('02', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('03', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('04', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('05', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('06', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('07', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('08', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('09', '2017', verbose=False, save_to_file=True)
+    # parse_email_contents('10', '2017', verbose=False, save_to_file=True)
+
+    # Below are used for training purposes
+    # parse_email_contents('11', '2017', verbose=False, save_to_file=True)
     # parse_email_contents('12', '2017', verbose=False, save_to_file=True)
-
     # parse_email_contents('01', '2018', verbose=False, save_to_file=True)
     # parse_email_contents('02', '2018', verbose=False, save_to_file=True)
     # parse_email_contents('03', '2018', verbose=False, save_to_file=True)
     # parse_email_contents('04', '2018', verbose=False, save_to_file=True)
-
-    pass

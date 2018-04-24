@@ -40,8 +40,8 @@ More on Database Models:
   https://docs.djangoproject.com/en/2.0/topics/db/queries/
 
 Remove all pychache files:
-[At Root]find . -name "*.pyc" -exec rm -f {} \;
-find . -name "*.DS_Store" -exec rm -f {} \;
+[At Root]
+
 
 Admin:  root
 PW:     19930618aS

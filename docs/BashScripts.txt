@@ -1,0 +1,30 @@
+# Simple Scripts used for renaming / moving files
+
+
+# Rename *.txt into 'Mail0[123].txt'
+ct=0; for f in *.txt; do mv "$f" $ct.txt; let ct=ct+1; done
+
+# Keep Up to 50000 .txt files and Name them into 'Mail0[123].txt'
+ct=0;
+for f in *.*; do
+    if (( ct > 50000))
+    then
+        rm "$f"
+    else
+        mv "$f" Mail$ct.txt
+    fi
+    let ct=ct+1
+done
+
+# Remove all .txt files in current folder
+for f in *.txt; do rm "$f"; done
+
+# Move all .txt files to upper folder
+for f in *.txt; do mv "$f" ../"$f"; done
+
+# Show count of files in folder
+ls | wc -l
+
+# Recursively remove *.xxx files
+find . -name "*.pyc" -exec rm -f {} \;
+find . -name "*.DS_Store" -exec rm -f {} \;

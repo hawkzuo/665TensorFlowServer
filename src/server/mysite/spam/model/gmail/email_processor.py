@@ -11,8 +11,11 @@ from nltk import word_tokenize
 
 # Useful packages: matplotlib; networkx; numpy
 
+# This script is used to parse well-formatted email text files
+# into pickle files
 
 
+DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
 
 # This regex is used to remove undesired characters
 basic_spam_regex = re.compile("X-Spam.*\n")
@@ -150,8 +153,10 @@ def parse_ham_emails(in_path, out_path, total_emails):
 
 # Parse spam emails into pickles
 def parse_spam_emails(year, month):
-    in_prefix = '../../dataout/m' + str(year) + str(month)
-    out_prefix = '../../spamout/m' + str(year) + str(month)
+    print('Started processing for month', month, 'year', year, 'parsing requests')
+    sleep(1)
+    in_prefix = DATA_PREFIX + 'dataout/m' + str(year) + str(month)
+    out_prefix = DATA_PREFIX + 'spamout/m' + str(year) + str(month)
     with open(in_prefix + '/total.txt', 'r') as ft:
         total = int(ft.read())
 
@@ -159,6 +164,9 @@ def parse_spam_emails(year, month):
     web_parts = set(os.listdir(in_prefix + '/w'))
 
     for i in range(1, total + 1):
+
+        if i % 300 == 0:
+            print('Progress', i, '/', total)
 
         step_mail_name = 'Mail' + str(i) + '.txt'
 
@@ -186,7 +194,7 @@ def parse_spam_emails(year, month):
                 soup = BeautifulSoup(f.read(), "html5lib")
                 parsed_web_content = pretty_soup_text(soup)
 
-                web_tokens, web_url_counts =  generate_tokens_from_parsed_soup_text(parsed_web_content)
+                web_tokens, web_url_counts = generate_tokens_from_parsed_soup_text(parsed_web_content)
                 # body_v1 = basic_spam_regex.sub('', parsed_web_content)
                 # body_v2 = equal_sign_regex.sub('', body_v1)
                 # body_v3 = body_v2.lower()
@@ -205,9 +213,10 @@ def parse_spam_emails(year, month):
         with open(out_prefix + '/m' + str(i) + '.pickle', 'wb') as fp:
             pickle.dump(result_dict, fp)
 
-        print(i)
-    print('Finished')
+        sleep(0.02)
+    print('Finished\n')
     pass
+
 
 def generate_tokens_from_parsed_soup_text(soup_text):
     body_v1 = basic_spam_regex.sub('', soup_text)
@@ -222,25 +231,50 @@ def generate_tokens_from_parsed_soup_text(soup_text):
     return web_tokens, web_url_counts
 
 
-
 if __name__ == '__main__':
     #
-    ham_in_prefix = 'data/overall'
-    ham_out_prefix = 'data/parsed'
+    # ham_in_prefix = 'data/overall'
+    # ham_out_prefix = 'data/parsed'
+    #
+    # ham_total = len(os.listdir(ham_in_prefix)) - 1
+    # print(ham_total)
+    # sleep(2)
+    #
+    # parse_ham_emails(ham_in_prefix, ham_out_prefix, ham_total)
 
-    ham_total = len(os.listdir(ham_in_prefix)) - 1
-    print(ham_total)
-    sleep(2)
-
-    parse_ham_emails(ham_in_prefix, ham_out_prefix, ham_total)
-
+    # Training Datasets
     # parse_spam_emails('2018', '04')
     # parse_spam_emails('2018', '03')
     # parse_spam_emails('2018', '02')
     # parse_spam_emails('2018', '01')
-    #
     # parse_spam_emails('2017', '12')
     # parse_spam_emails('2017', '11')
+
+    # Test set for 2017
+    # parse_spam_emails('2017', '10')
+    # parse_spam_emails('2017', '09')
+    # parse_spam_emails('2017', '08')
+    # parse_spam_emails('2017', '07')
+    # parse_spam_emails('2017', '06')
+    # parse_spam_emails('2017', '05')
+    # parse_spam_emails('2017', '04')
+    # parse_spam_emails('2017', '03')
+    # parse_spam_emails('2017', '02')
+    # parse_spam_emails('2017', '01')
+
+    # Test set for 2016
+    # parse_spam_emails('2016', '12')
+    # parse_spam_emails('2016', '11')
+    # parse_spam_emails('2016', '10')
+    # parse_spam_emails('2016', '09')
+    parse_spam_emails('2016', '08')
+    parse_spam_emails('2016', '07')
+    parse_spam_emails('2016', '06')
+    parse_spam_emails('2016', '05')
+    parse_spam_emails('2016', '04')
+    parse_spam_emails('2016', '03')
+    parse_spam_emails('2016', '02')
+    parse_spam_emails('2016', '01')
 
     print('Finished')
 
