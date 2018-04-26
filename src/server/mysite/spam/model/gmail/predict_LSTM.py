@@ -1,10 +1,15 @@
 import os
+import pickle
 
 import tensorflow as tf
 import numpy as np
 from tensorflow.contrib import rnn
 
 from server.mysite.spam.model.gmail import data_helper_gmail
+
+DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
+SPAM_PREFIX = 'spamout/m'
+MONTH_MAPPING = ['', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 
 operationalMode = 3
 
@@ -74,13 +79,8 @@ def next_batch(batch_size, batch_id, X, Y):
     return b_x, b_y
 
 
-def predict_from_raw_html(html, operational_mode=3):
-    pass
-
-
 # Two functions used for server
 def predict_from_raw_input(raw_input, operation_mode=3):
-
     tokens, _ = data_helper_gmail.generate_tokens_from_parsed_soup_text(raw_input)
     uniMatrix = data_helper_gmail.generate_sample_unigram(tokens, uniFeatureDict)
     biMatrix = data_helper_gmail.generate_sample_ngram(tokens, biGramFeatureDict, 2)
@@ -93,15 +93,17 @@ def predict_from_raw_input(raw_input, operation_mode=3):
     elif operation_mode == 3:
         combinedMatrixX = np.concatenate((uniMatrix, biMatrix, triMatrix), axis=1)
     else:
-        raise('operation_mode', 'unsupported')
+        raise ('operation_mode', 'unsupported')
 
     tensor_prediction = sess.run(prediction, feed_dict={x: combinedMatrixX.reshape(1, timeSteps,
                                                                                    numFeatures)})  # had to make sure that each input in feed_dict was an array
     print(tensor_prediction)
     single_prediction = single_label_to_string(tensor_prediction)
+    print(single_prediction)
     return single_prediction
 
 
+# This translate tensor prediction into readable label
 def single_label_to_string(tensor_prediction):
     # 2nd vector value > 1st vector value => [0,1] => 'ham'
     if tensor_prediction[0][1] > tensor_prediction[0][0]:
@@ -110,13 +112,74 @@ def single_label_to_string(tensor_prediction):
         return 'spam'
 
 
+### Those are used for evaluation on this predictor
+
+
+def read_spams_and_generate_features_for_month_year(month, year, operation_mode):
+    spam_location = DATA_PREFIX + SPAM_PREFIX + str(year) + MONTH_MAPPING[month]
+    filenames = os.listdir(spam_location)
+
+    # for f in filenames:
+    #     if 'pickle' in f:
+    #         pass
+    #     else:
+    #         print(f)
+
+    examples_count = len(filenames)
+    errors_count = 0
+
+    print('Spams on year', year, 'month', month, 'is', examples_count)
+
+    for i in range(examples_count):
+        if i % 100 == 0:
+            print(errors_count, '/', i)
+        # File name start with 1
+        with open(spam_location + '/m' + str(i + 1) + '.pickle', 'rb') as f:
+            single_example = pickle.load(f)
+            tokens = single_example['content']
+
+            uniMatrix = data_helper_gmail.generate_sample_unigram(tokens, uniFeatureDict)
+            biMatrix = data_helper_gmail.generate_sample_ngram(tokens, biGramFeatureDict, 2)
+            triMatrix = data_helper_gmail.generate_sample_ngram(tokens, triGramFeatureDict, 3)
+            if operation_mode == 1:
+                combinedMatrixX = uniMatrix
+            elif operation_mode == 2:
+                combinedMatrixX = np.concatenate((uniMatrix, biMatrix), axis=1)
+            elif operation_mode == 3:
+                combinedMatrixX = np.concatenate((uniMatrix, biMatrix, triMatrix), axis=1)
+            else:
+                raise ('operation_mode', 'unsupported')
+
+            tensor_prediction = sess.run(prediction, feed_dict={x: combinedMatrixX.reshape(1, timeSteps,
+                                                                                           numFeatures)})  # had to make sure that each input in feed_dict was an array
+            single_prediction = single_label_to_string(tensor_prediction)
+            # print(single_prediction)
+            if single_prediction == 'ham':
+                errors_count += 1
+    print(errors_count)
+    print('Performance on year', year, 'month', month, 'is', errors_count / examples_count)
+    return examples_count
+
+
+def read_spams_for_year(year, operation_mode):
+    year_list = []
+    for i in range(12):
+        year_list += read_spams_and_generate_features_for_month_year(i + 1, year, operation_mode)
+    print('Spams on whole year', year, 'is', len(year_list))
+    return year_list
+
+
 if __name__ == "__main__":
     # raw1 = "I thought slide is enough."
 
-    raw1 = """
+    #     raw1 = """
+    #
+    # """
+    #
+    #     print(predict_from_raw_input(raw1))
 
-"""
+    read_spams_and_generate_features_for_month_year(10, 2017, operationalMode)
+    # read_spams_and_generate_features_for_month_year(11, 2017, operationalMode)
+    # read_spams_and_generate_features_for_month_year(12, 2017, operationalMode)
 
-    print(predict_from_raw_input(raw1))
-    # raw2 = "You are awarded a SiPix Digital Camera! call 09061221061 from landline. Delivery within 28days. T Cs Box177. M221BP. 2yr warranty. 150ppm. 16 . p p£3.99"
-    # print(predict_from_raw_input(raw2))
+    pass

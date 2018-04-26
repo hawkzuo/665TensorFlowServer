@@ -188,7 +188,8 @@ def generate_model_in_memory(data_prefix,
                              tri_cutoff=20,
                              split=.2,
                              spam_ham_ratio=2,
-                             operational_mode=3):
+                             operational_mode=3,
+                             is_cross_validation_mode=False):
 
     ham_prefix = data_prefix + 'data/parsed_ionly'
     spam_prefix = data_prefix + 'data/most_recent_spam'
@@ -197,7 +198,10 @@ def generate_model_in_memory(data_prefix,
 
     totalList = spamList + hamList
 
-    trainList, testList = split_test_train_data(totalList, split)
+    if is_cross_validation_mode:
+        pass
+    else:
+        trainList, testList = split_test_train_data(totalList, split)
 
     # TODO: 10-fold cross validation
     # folds = split_test_train_data_with_folds(totalList, 10)

@@ -19,6 +19,8 @@ def csv_to_numpy_array(filePath, delimiter):
 # 2: Combined features matrix [1-gram 2-gram]
 # 3: Combined features matrix [1-gram 2-gram 3-gram]
 
+# We don't save examples to local file
+# Due to Memory Error
 def import_data(data_type):
     if "data" not in os.listdir(os.getcwd()):
         raise Exception('data', 'not presented')
@@ -77,16 +79,17 @@ def import_features_dict(data_type):
         raise Exception('feature', 'unsupported type')
 
 
-#
+# Load featuresCount labelsCount examplesCount from disk
 def import_structure():
     if "features" not in os.listdir(os.getcwd()):
-        raise Exception('data', 'not presented')
+        raise Exception('features', 'not presented')
     else:
         pass
     with open("features/structure.pickle", 'rb') as f:
         struct_dict = pickle.load(f)
     return struct_dict['features'], struct_dict['labels'], struct_dict['examples']
 
+# Generate tokens and url_links count from raw input
 def tokenize_raw_input(raw_input):
     web_tokens, _ = generate_tokens_from_parsed_soup_text(raw_input)
     return web_tokens
@@ -100,7 +103,6 @@ def generate_sample_unigram(tokens, unigram_dict):
         if key in unigram_dict:
             feature_matrix[0, unigram_dict[key]] = value
     return regularize_matrix(feature_matrix)
-
 
 # Generate Ngram features for testing example
 def generate_sample_ngram(tokens, ngram_dict, n):

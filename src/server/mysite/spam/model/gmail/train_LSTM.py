@@ -8,9 +8,17 @@ from tensorflow.contrib import rnn
 from server.mysite.spam.model.gmail.feature_extraction import generate_model_in_memory
 
 # Data cannot be added to IDE scope
-# Otherwise the whole will be too slow
-
+# Otherwise the IDE will be too slow
 DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
+# Tri-Gram mode
+operationalMode = 3
+
+
+
+
+
+
+
 
 
 def next_batch(batch_size, batch_id, total_x, total_y):
@@ -28,8 +36,7 @@ def next_batch(batch_size, batch_id, total_x, total_y):
 
 if __name__ == '__main__':
 
-    # Tri-Gram mode
-    operationalMode = 3
+
 
     trainX, trainY, testX, testY = generate_model_in_memory(data_prefix=DATA_PREFIX,
                                                             uni_cutoff=12,

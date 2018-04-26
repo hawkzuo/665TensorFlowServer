@@ -16,6 +16,29 @@ for f in *.*; do
     let ct=ct+1
 done
 
+ct=0;
+for f in *.*; do
+    if (( ct > 50000))
+    then
+        rm "$f"
+    else
+        mv "$f" Mail$ct.pickle
+    fi
+    let ct=ct+1
+done
+
+ct=1;
+for f in *.*; do
+    if (( ct > 50000))
+    then
+        rm "$f"
+    else
+        mv "$f" m$ct.pickle
+    fi
+    let ct=ct+1
+done
+
+
 # Remove all .txt files in current folder
 for f in *.txt; do rm "$f"; done
 
