@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.contrib import rnn
 
-from server.mysite.spam.model.gmail import data_helper_gmail
+from . import data_helper_gmail
 
 DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
 SPAM_PREFIX = 'spamout/m'
