@@ -189,6 +189,7 @@ def generate_model_in_memory(data_prefix,
                              split=.2,
                              spam_ham_ratio=2,
                              operational_mode=3,
+                             file_prefix='',
                              is_cross_validation_mode=False):
 
     ham_prefix = data_prefix + 'data/parsed_ionly'
@@ -248,11 +249,11 @@ def generate_model_in_memory(data_prefix,
         raise ValueError('operational_mode', 'not supported')
     print('Storing features dictionary to location:', os.getcwd())
 
-    with open('features/uniFeatureDict.pickle', 'wb') as f:
+    with open('features/'+file_prefix+'uniFeatureDict.pickle', 'wb') as f:
         pickle.dump(uniFeatureDict, f)
-    with open('features/biGramFeatureDict.pickle', 'wb') as f:
+    with open('features/'+file_prefix+'biGramFeatureDict.pickle', 'wb') as f:
         pickle.dump(biGramFeatureDict, f)
-    with open('features/triGramFeatureDict.pickle', 'wb') as f:
+    with open('features/'+file_prefix+'triGramFeatureDict.pickle', 'wb') as f:
         pickle.dump(triGramFeatureDict, f)
 
     print('Finished saving features file')
