@@ -262,4 +262,5 @@ def generate_model_in_memory(data_prefix,
 
 
 if __name__ == '__main__':
-    print('main')
+    # print('main')
+    pass
