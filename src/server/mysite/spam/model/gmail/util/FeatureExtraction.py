@@ -19,16 +19,21 @@ from nltk import ngrams
 ONLY_INBOX_HAM = 1
 ALL_HAM = 2
 SPAM_FOLDERS = ['/m201804', '/m201803', '/m201802', '/m201801', '/m201712', '/m201711']
+SPAM_FOLDERS_WIN = ['\\m201804', '\\m201803', '\\m201802', '\\m201801', '\\m201712', '\\m201711']
 SPAM_FOLDERS_COUNT = [3574, 20040, 25948, 38431, 51299, 74722]
 
 
-def generate_examples_list(ham_path, spam_path, rate):
+def generate_examples_list(ham_path, spam_path, rate, is_win_platform=False):
     ham_filenames = os.listdir(ham_path)
     ham_examples_count = len(ham_filenames)
     ham_examples_list = []
 
+    if is_win_platform:
+        ham_prefix = ham_path + '\\m'
+    else:
+        ham_prefix = ham_path + '/m'
     for i in range(ham_examples_count):
-        with open(ham_path + '/m' + str(i) + '.pickle', 'rb') as f:
+        with open(ham_prefix + str(i) + '.pickle', 'rb') as f:
             single_example = pickle.load(f)
             ham_examples_list.append(('ham', " ".join(single_example['content']), single_example['url']))
 
@@ -43,18 +48,30 @@ def generate_examples_list(ham_path, spam_path, rate):
 
     # Those folders' examples will all be used
     for j in range(upper_index):
-        step_spam_filenames = os.listdir(spam_path + SPAM_FOLDERS[j])
+        if is_win_platform:
+            step_spam_filenames = os.listdir(spam_path + SPAM_FOLDERS_WIN[j])
+        else:
+            step_spam_filenames = os.listdir(spam_path + SPAM_FOLDERS[j])
         step_spam_examples_count = len(step_spam_filenames)
         for i in range(1, 1 + step_spam_examples_count):
-            with open(spam_path + SPAM_FOLDERS[j] + '/m' + str(i) + '.pickle', 'rb') as f:
+            if is_win_platform:
+                spam_prefix = spam_path + SPAM_FOLDERS_WIN[j] + '\\m'
+            else:
+                spam_prefix = spam_path + SPAM_FOLDERS[j] + '/m'
+            with open(spam_prefix + str(i) + '.pickle', 'rb') as f:
                 single_example = pickle.load(f)
                 spam_examples_list.append(('spam', " ".join(single_example['content']), single_example['url']))
         pass
 
     all_include_index = upper_index - 1
     spam_leftovers_count = spam_examples_count - SPAM_FOLDERS_COUNT[all_include_index]
+
+    if is_win_platform:
+        spam_prefix = spam_path + SPAM_FOLDERS_WIN[upper_index] + '\\m'
+    else:
+        spam_prefix = spam_path + SPAM_FOLDERS[upper_index] + '/m'
     for i in range(1, 1 + spam_leftovers_count):
-        with open(spam_path + SPAM_FOLDERS[upper_index] + '/m' + str(i) + '.pickle', 'rb') as f:
+        with open(spam_prefix + str(i) + '.pickle', 'rb') as f:
             single_example = pickle.load(f)
             spam_examples_list.append(('spam', " ".join(single_example['content']), single_example['url']))
 
@@ -183,6 +200,7 @@ def regularize_matrix(feature_matrix):
 # operational_mode:
 # 1: unigram;   2: unigram + bigram;    3: unigram + bigram + trigram
 def generate_model_in_memory(data_prefix,
+                             is_win_platform=False,
                              uni_cutoff=10,
                              bi_cutoff=20,
                              tri_cutoff=20,
@@ -192,8 +210,12 @@ def generate_model_in_memory(data_prefix,
                              file_prefix='',
                              is_cross_validation_mode=False):
 
-    ham_prefix = data_prefix + 'data/parsed_ionly'
-    spam_prefix = data_prefix + 'data/most_recent_spam'
+    if is_win_platform:
+        ham_prefix = data_prefix + 'data\\parsed_ionly'
+        spam_prefix = data_prefix + 'data\\most_recent_spam'
+    else:
+        ham_prefix = data_prefix + 'data/parsed_ionly'
+        spam_prefix = data_prefix + 'data/most_recent_spam'
 
     spamList, hamList = generate_examples_list(ham_prefix, spam_prefix, spam_ham_ratio)
 
@@ -249,11 +271,15 @@ def generate_model_in_memory(data_prefix,
         raise ValueError('operational_mode', 'not supported')
     print('Storing features dictionary to location:', os.getcwd())
 
-    with open('features/'+file_prefix+'uniFeatureDict.pickle', 'wb') as f:
+    if is_win_platform:
+        feature_prefix = 'features\\'+file_prefix
+    else:
+        feature_prefix = 'features/'+file_prefix
+    with open(feature_prefix + 'uniFeatureDict.pickle', 'wb') as f:
         pickle.dump(uniFeatureDict, f)
-    with open('features/'+file_prefix+'biGramFeatureDict.pickle', 'wb') as f:
+    with open(feature_prefix + 'biGramFeatureDict.pickle', 'wb') as f:
         pickle.dump(biGramFeatureDict, f)
-    with open('features/'+file_prefix+'triGramFeatureDict.pickle', 'wb') as f:
+    with open(feature_prefix + 'triGramFeatureDict.pickle', 'wb') as f:
         pickle.dump(triGramFeatureDict, f)
 
     print('Finished saving features file')

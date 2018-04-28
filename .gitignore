@@ -23,3 +23,9 @@ src/server/mysite/spam/model/gmail/weights_lstm
 
 # ignore credentials
 src/*.json
+
+# Pre-trained Weights
+src/server/mysite/spam/model/gmail/pre_trained_128
+src/server/mysite/spam/model/gmail/pre_trained_256
+src/server/mysite/spam/model/gmail/pre_trained_512
+

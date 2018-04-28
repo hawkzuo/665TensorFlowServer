@@ -16,6 +16,7 @@ Meanwhile, we're currently working on Docker settings to simplify the installati
 For now, the installation requires some technical backgrounds
 
 ### INSTALLATION
+
 ```Bash
 pip install --ignore-installed --upgrade package-list.txt   
 python -m nltk.downloader all

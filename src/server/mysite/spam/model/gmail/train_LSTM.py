@@ -12,8 +12,10 @@ from tensorflow.contrib import rnn
 from server.mysite.spam.model.gmail.util import FeatureExtraction
 
 DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
+DATA_PREFIX_WIN = 'D:\\workplaces\\665\\'
+
 # Tri-Gram mode
-operationalMode = 1
+operationalMode = 3
 # Small Medium Large FeatureSets
 CUTOFF_SETTINGS = [(18, 28, 26), (12, 22, 20), (8, 16, 14)]
 CUTOFF_STRINGS = ['small', 'medium', 'large']
@@ -37,9 +39,16 @@ def next_batch(batch_size, batch_id, total_x, total_y):
 # A combined method for tuning a single model without cross-validation
 def model_tuning_single(hidden_units=256,
                         batches=50,
-                        epochs=100):
+                        epochs=100,
+                        is_win_platform=False):
+    if is_win_platform:
+        data_prefix = DATA_PREFIX_WIN
+        weights_output_prefix = os.getcwd() + "\\weights_lstm\\"
+    else:
+        data_prefix = DATA_PREFIX
+        weights_output_prefix = os.getcwd() + "/weights_lstm/"
     print('Training with hidden units', hidden_units)
-    for j in range(3):
+    for j in range(1):
         (uni, bi, tri) = CUTOFF_SETTINGS[j]
         print('Training on', CUTOFF_STRINGS[j], 'scale')
         for k in range(3):
@@ -50,8 +59,10 @@ def model_tuning_single(hidden_units=256,
                                  + '_ratio-' + str(ratio)
             # Had to run this command before building the graph
             tf.reset_default_graph()
+            # Dict used to save optimal params
             optimal_parameters = {}
-            trainX, trainY, testX, testY = FeatureExtraction.generate_model_in_memory(data_prefix=DATA_PREFIX,
+            trainX, trainY, testX, testY = FeatureExtraction.generate_model_in_memory(data_prefix=data_prefix,
+                                                                                      is_win_platform=is_win_platform,
                                                                                       uni_cutoff=uni,
                                                                                       bi_cutoff=bi,
                                                                                       tri_cutoff=tri,
@@ -64,7 +75,12 @@ def model_tuning_single(hidden_units=256,
             numTrainExamples = trainX.shape[0]
             print('Features:', numFeatures)
             struct = {'features': numFeatures, 'labels': numLabels, 'examples': numTrainExamples}
-            with open('features/structure_' + CUTOFF_STRINGS[j] + '_' + str(ratio) + '.pickle', 'wb') as f:
+
+            if is_win_platform:
+                feature_prefix = 'features\\structure_'
+            else:
+                feature_prefix = 'features/structure_'
+            with open(feature_prefix + CUTOFF_STRINGS[j] + '_' + str(ratio) + '.pickle', 'wb') as f:
                 pickle.dump(struct, f)
 
             timeSteps = 1
@@ -163,18 +179,19 @@ def model_tuning_single(hidden_units=256,
                         optimal_parameters['f1'] = test_f1
                         optimal_parameters['step'] = i
                         global_max_f1 = test_f1
-                        saver.save(sess,
-                                   os.getcwd() + "/weights_lstm/lstm_operationMode-" + str(
-                                       operationalMode) + '_cutoff-' +
-                                   CUTOFF_STRINGS[j] + '_ratio-' + str(ratio) + "_trained_variables.ckpt")
-                    print('Global Max F1:', global_max_f1)
+                        if test_f1 > global_max_f1:
+                            saver.save(sess,
+                                       weights_output_prefix + "lstm_operationMode-" + str(
+                                           operationalMode) + '_cutoff-' +
+                                       CUTOFF_STRINGS[j] + '_ratio-' + str(ratio) + "_trained_variables.ckpt")
+                    print('Global Max F1:', global_max_f1, 'on step:', i // desiredBatches)
                     # sleep(3)
                 # sleep(0.1)
                 i = i + 1
             print("final optimal parameters: ",
                   str(optimal_parameters['acc']), str(optimal_parameters['pc']),
                   str(optimal_parameters['rc']), str(optimal_parameters['f1']))
-            with open('weights_lstm/' + pickle_name_prefix + 'optimalParameters.pickle', 'wb') as f:
+            with open(weights_output_prefix + pickle_name_prefix + 'optimalParameters.pickle', 'wb') as f:
                 pickle.dump(optimal_parameters, f)
             sess.close()
 
@@ -183,8 +200,10 @@ def model_tuning_single(hidden_units=256,
 
 
 if __name__ == '__main__':
-    model_tuning_single(hidden_units=128, epochs=1000)
-    # model_tuning_single(hidden_units=256, epochs=1000)
+    # model_tuning_single(hidden_units=128, epochs=1000)
+    model_tuning_single(hidden_units=256, epochs=1000, is_win_platform=True)
     # model_tuning_single(hidden_units=512, epochs=1000)
 
+    # print(os.getcwd())
+    # print('End')
     pass
