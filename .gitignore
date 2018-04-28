@@ -20,6 +20,11 @@ src/server/mysite/weights
 src/server/mysite/weights_lstm
 src/server/mysite/spam/model/gmail/weights
 src/server/mysite/spam/model/gmail/weights_lstm
+src/server/mysite/spam/model/gmail/weights_lr
+
+# features
+src/server/mysite/spam/model/gmail/features
+src/server/mysite/spam/model/gmail/featuresLR
 
 # ignore credentials
 src/*.json
@@ -28,4 +33,5 @@ src/*.json
 src/server/mysite/spam/model/gmail/pre_trained_128
 src/server/mysite/spam/model/gmail/pre_trained_256
 src/server/mysite/spam/model/gmail/pre_trained_512
+src/server/mysite/spam/model/gmail/pre_trained_lr
 

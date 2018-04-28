@@ -6,9 +6,12 @@ import numpy as np
 from tensorflow.contrib import rnn
 
 # This format is acceptable for the Django Settings
-from .util import FeatureExtraction
-# This format is acceptable for single running purposes
-# from server.mysite.spam.model.gmail import data_helper_gmail
+# from .util import data_helper_gmail, email_processor
+# This format is acceptable for python predict_LSTM.py
+# from util import data_helper_gmail
+# from util import email_processor
+# This format is acceptable for IDE settings
+from server.mysite.spam.model.gmail.util import data_helper_gmail, email_processor
 
 DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
 SPAM_PREFIX = 'spamout/m'
@@ -16,8 +19,8 @@ MONTH_MAPPING = ['', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
 
 operationalMode = 3
 
-uniFeatureDict, biGramFeatureDict, triGramFeatureDict = FeatureExtraction.import_features_dict(operationalMode)
-numFeatures, numLabels, numTrainExamples = import_structure()
+uniFeatureDict, biGramFeatureDict, triGramFeatureDict = data_helper_gmail.import_features_dict(operationalMode)
+numFeatures, numLabels, numTrainExamples = data_helper_gmail.import_structure()
 
 timeSteps = 1
 hiddenUnits = 512
@@ -84,10 +87,10 @@ def next_batch(batch_size, batch_id, X, Y):
 
 # Two functions used for server
 def predict_from_raw_input(raw_input, operation_mode=3):
-    tokens, _ = generate_tokens_from_parsed_soup_text(raw_input)
-    uniMatrix = generate_sample_unigram(tokens, uniFeatureDict)
-    biMatrix = generate_sample_ngram(tokens, biGramFeatureDict, 2)
-    triMatrix = generate_sample_ngram(tokens, triGramFeatureDict, 3)
+    tokens, _ = email_processor.generate_tokens_from_parsed_soup_text(raw_input)
+    uniMatrix = data_helper_gmail.generate_sample_unigram(tokens, uniFeatureDict)
+    biMatrix = data_helper_gmail.generate_sample_ngram(tokens, biGramFeatureDict, 2)
+    triMatrix = data_helper_gmail.generate_sample_ngram(tokens, triGramFeatureDict, 3)
 
     if operation_mode == 1:
         combinedMatrixX = uniMatrix
@@ -116,8 +119,6 @@ def single_label_to_string(tensor_prediction):
 
 
 ### Those are used for evaluation on this predictor
-
-
 def read_spams_and_generate_features_for_month_year(month, year, operation_mode):
     spam_location = DATA_PREFIX + SPAM_PREFIX + str(year) + MONTH_MAPPING[month]
     filenames = os.listdir(spam_location)
@@ -141,9 +142,9 @@ def read_spams_and_generate_features_for_month_year(month, year, operation_mode)
             single_example = pickle.load(f)
             tokens = single_example['content']
 
-            uniMatrix = generate_sample_unigram(tokens, uniFeatureDict)
-            biMatrix = generate_sample_ngram(tokens, biGramFeatureDict, 2)
-            triMatrix = generate_sample_ngram(tokens, triGramFeatureDict, 3)
+            uniMatrix = data_helper_gmail.generate_sample_unigram(tokens, uniFeatureDict)
+            biMatrix = data_helper_gmail.generate_sample_ngram(tokens, biGramFeatureDict, 2)
+            triMatrix = data_helper_gmail.generate_sample_ngram(tokens, triGramFeatureDict, 3)
             if operation_mode == 1:
                 combinedMatrixX = uniMatrix
             elif operation_mode == 2:

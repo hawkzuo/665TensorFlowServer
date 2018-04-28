@@ -48,10 +48,10 @@ def model_tuning_single(hidden_units=256,
         data_prefix = DATA_PREFIX
         weights_output_prefix = os.getcwd() + "/weights_lstm/"
     print('Training with hidden units', hidden_units)
-    for j in range(1):
+    for j in range(2, 3):
         (uni, bi, tri) = CUTOFF_SETTINGS[j]
         print('Training on', CUTOFF_STRINGS[j], 'scale')
-        for k in range(3):
+        for k in range(1, 2):
             ratio = SPAM_HAM_RATIOS[k]
             print('Training on spam ratio', ratio)
             pickle_name_prefix = 'operationMode-' + str(operationalMode) \
@@ -178,13 +178,17 @@ def model_tuning_single(hidden_units=256,
                         optimal_parameters['rc'] = test_rc
                         optimal_parameters['f1'] = test_f1
                         optimal_parameters['step'] = i
-                        global_max_f1 = test_f1
                         if test_f1 > global_max_f1:
                             saver.save(sess,
                                        weights_output_prefix + "lstm_operationMode-" + str(
                                            operationalMode) + '_cutoff-' +
                                        CUTOFF_STRINGS[j] + '_ratio-' + str(ratio) + "_trained_variables.ckpt")
-                    print('Global Max F1:', global_max_f1, 'on step:', i // desiredBatches)
+                            with open(weights_output_prefix + pickle_name_prefix + 'optimalParameters.pickle',
+                                      'wb') as f:
+                                pickle.dump(optimal_parameters, f)
+                            print('Successfully saved new weights')
+                        global_max_f1 = test_f1
+                    print('Global Max F1:', global_max_f1, 'on step:', optimal_parameters['step'] // desiredBatches)
                     # sleep(3)
                 # sleep(0.1)
                 i = i + 1
@@ -195,7 +199,7 @@ def model_tuning_single(hidden_units=256,
                 pickle.dump(optimal_parameters, f)
             sess.close()
 
-        sleep(120)
+        sleep(300)
     pass
 
 

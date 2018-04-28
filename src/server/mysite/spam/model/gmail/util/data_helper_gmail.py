@@ -89,10 +89,12 @@ def import_structure():
         struct_dict = pickle.load(f)
     return struct_dict['features'], struct_dict['labels'], struct_dict['examples']
 
+
 # Generate tokens and url_links count from raw input
 def tokenize_raw_input(raw_input):
     web_tokens, _ = generate_tokens_from_parsed_soup_text(raw_input)
     return web_tokens
+
 
 # Generate Unigram features for testing example
 def generate_sample_unigram(tokens, unigram_dict):
@@ -104,6 +106,7 @@ def generate_sample_unigram(tokens, unigram_dict):
             feature_matrix[0, unigram_dict[key]] = value
     return regularize_matrix(feature_matrix)
 
+
 # Generate Ngram features for testing example
 def generate_sample_ngram(tokens, ngram_dict, n):
     feature_matrix = np.zeros(shape=(1, len(ngram_dict)), dtype=float)
@@ -114,6 +117,7 @@ def generate_sample_ngram(tokens, ngram_dict, n):
             feature_matrix[0, ngram_dict[key]] = value
     return regularize_matrix(feature_matrix)
 
+
 def regularize_matrix(feature_matrix):
     for doc in range(feature_matrix.shape[0]):
         totalWords = np.sum(feature_matrix[doc, :], axis=0)
@@ -123,6 +127,4 @@ def regularize_matrix(feature_matrix):
 
 
 if __name__ == "__main__":
-
     pass
-
