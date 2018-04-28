@@ -5,15 +5,15 @@ from time import sleep
 import tensorflow as tf
 from tensorflow.contrib import rnn
 
-# from . import feature_extraction
-
 # Data cannot be added to IDE scope
 # Otherwise the IDE will be too slow
-from server.mysite.spam.model.gmail import feature_extraction
+
+# from . import feature_extraction
+from server.mysite.spam.model.gmail.util import FeatureExtraction
 
 DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
 # Tri-Gram mode
-operationalMode = 3
+operationalMode = 1
 # Small Medium Large FeatureSets
 CUTOFF_SETTINGS = [(18, 28, 26), (12, 22, 20), (8, 16, 14)]
 CUTOFF_STRINGS = ['small', 'medium', 'large']
@@ -50,14 +50,15 @@ def model_tuning_single(hidden_units=256,
                                  + '_ratio-' + str(ratio)
             # Had to run this command before building the graph
             tf.reset_default_graph()
-            trainX, trainY, testX, testY = feature_extraction.generate_model_in_memory(data_prefix=DATA_PREFIX,
-                                                                                       uni_cutoff=uni,
-                                                                                       bi_cutoff=bi,
-                                                                                       tri_cutoff=tri,
-                                                                                       split=.2,
-                                                                                       spam_ham_ratio=ratio,
-                                                                                       operational_mode=operationalMode,
-                                                                                       file_prefix=pickle_name_prefix)
+            optimal_parameters = {}
+            trainX, trainY, testX, testY = FeatureExtraction.generate_model_in_memory(data_prefix=DATA_PREFIX,
+                                                                                      uni_cutoff=uni,
+                                                                                      bi_cutoff=bi,
+                                                                                      tri_cutoff=tri,
+                                                                                      split=.2,
+                                                                                      spam_ham_ratio=ratio,
+                                                                                      operational_mode=operationalMode,
+                                                                                      file_prefix=pickle_name_prefix)
             numFeatures = trainX.shape[1]
             numLabels = trainY.shape[1]
             numTrainExamples = trainX.shape[0]
@@ -155,7 +156,12 @@ def model_tuning_single(hidden_units=256,
                     # print("Loss ", los)
                     print("__________________")
 
-                    if test_f1 > global_max_f1:
+                    if test_f1 >= global_max_f1:
+                        optimal_parameters['acc'] = test_acc
+                        optimal_parameters['pc'] = test_pc
+                        optimal_parameters['rc'] = test_rc
+                        optimal_parameters['f1'] = test_f1
+                        optimal_parameters['step'] = i
                         global_max_f1 = test_f1
                         saver.save(sess,
                                    os.getcwd() + "/weights_lstm/lstm_operationMode-" + str(
@@ -163,18 +169,22 @@ def model_tuning_single(hidden_units=256,
                                    CUTOFF_STRINGS[j] + '_ratio-' + str(ratio) + "_trained_variables.ckpt")
                     print('Global Max F1:', global_max_f1)
                     # sleep(3)
-                sleep(0.1)
+                # sleep(0.1)
                 i = i + 1
-            print("final accuracy on test set: %s" % str(sess.run(accuracy_OP,
-                                                                  feed_dict={x: testX.reshape(testX.shape[0], timeSteps,
-                                                                                              numFeatures),
-                                                                             y: testY})))
+            print("final optimal parameters: ",
+                  str(optimal_parameters['acc']), str(optimal_parameters['pc']),
+                  str(optimal_parameters['rc']), str(optimal_parameters['f1']))
+            with open('weights_lstm/' + pickle_name_prefix + 'optimalParameters.pickle', 'wb') as f:
+                pickle.dump(optimal_parameters, f)
             sess.close()
 
+        sleep(120)
     pass
 
 
 if __name__ == '__main__':
-    model_tuning_single(hidden_units=128)
+    model_tuning_single(hidden_units=128, epochs=1000)
+    # model_tuning_single(hidden_units=256, epochs=1000)
+    # model_tuning_single(hidden_units=512, epochs=1000)
 
     pass

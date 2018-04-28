@@ -6,5 +6,7 @@ mysite/weights  folder is the stored model that's already trained
 mysite/spam/model folder is the root folder of the Training models
 mysite/spam/model/data[weights][summary_logs] folders is used for training models
 
+model_checkpoint_path: "/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/mysite/spam/model/gmail/weights_lstm/lstm_operationMode-3_cutoff-small_ratio-1_trained_variables.ckpt"
+all_model_checkpoint_paths: "/Users/jianyuzuo/Workspaces/CSCE665_project/tensorflow-server/src/server/mysite/spam/model/gmail/weights_lstm/lstm_operationMode-3_cutoff-small_ratio-1_trained_variables.ckpt"
 
 

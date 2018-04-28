@@ -4,7 +4,7 @@ import tensorflow as tf
 # Global variables use JAVA Camel case,
 # Function's instance variables use dash lower case
 # Requires Parameter Tunings
-from server.mysite.spam.model.gmail.feature_extraction import generate_model_in_memory
+from server.mysite.spam.model.gmail.util.FeatureExtraction import generate_model_in_memory
 
 
 DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
