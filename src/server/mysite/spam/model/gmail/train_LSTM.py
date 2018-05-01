@@ -15,7 +15,7 @@ DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
 DATA_PREFIX_WIN = 'D:\\workplaces\\665\\'
 
 # Tri-Gram mode
-operationalMode = 3
+operationalMode = 1
 # Small Medium Large FeatureSets
 CUTOFF_SETTINGS = [(18, 28, 26), (12, 22, 20), (8, 16, 14)]
 CUTOFF_STRINGS = ['small', 'medium', 'large']
@@ -48,10 +48,10 @@ def model_tuning_single(hidden_units=256,
         data_prefix = DATA_PREFIX
         weights_output_prefix = os.getcwd() + "/weights_lstm/"
     print('Training with hidden units', hidden_units)
-    for j in range(2, 3):
+    for j in range(1, 2):
         (uni, bi, tri) = CUTOFF_SETTINGS[j]
         print('Training on', CUTOFF_STRINGS[j], 'scale')
-        for k in range(1, 2):
+        for k in range(2, 3):
             ratio = SPAM_HAM_RATIOS[k]
             print('Training on spam ratio', ratio)
             pickle_name_prefix = 'operationMode-' + str(operationalMode) \
@@ -142,6 +142,7 @@ def model_tuning_single(hidden_units=256,
             sess.run(init)
 
             i = 1
+            cost = 0
             global_max_f1 = 0
             saver = tf.train.Saver()
 
@@ -154,11 +155,12 @@ def model_tuning_single(hidden_units=256,
 
                 if i % desiredBatches == 0:
 
-                    train_acc, train_pc, train_rc, train_f1 = sess.run([accuracy_OP, precision_OP, recall_OP, f1_OP],
-                                                                       feed_dict={
-                                                                           x: trainX.reshape(trainX.shape[0], timeSteps,
-                                                                                             numFeatures),
-                                                                           y: trainY})
+                    train_acc, train_pc, train_rc, train_f1, train_cost = sess.run(
+                        [accuracy_OP, precision_OP, recall_OP, f1_OP, loss_OP],
+                        feed_dict={
+                            x: trainX.reshape(trainX.shape[0], timeSteps,
+                                              numFeatures),
+                            y: trainY})
                     test_acc, test_pc, test_rc, test_f1 = sess.run([accuracy_OP, precision_OP, recall_OP, f1_OP],
                                                                    feed_dict={
                                                                        x: testX.reshape(testX.shape[0], timeSteps,
@@ -189,6 +191,11 @@ def model_tuning_single(hidden_units=256,
                             print('Successfully saved new weights')
                         global_max_f1 = test_f1
                     print('Global Max F1:', global_max_f1, 'on step:', optimal_parameters['step'] // desiredBatches)
+                    diff = abs(train_cost - cost)
+                    cost = train_cost
+                    if i > 1 and diff < .0000001:
+                        print("change in cost %g; convergence." % diff)
+                        break
                     # sleep(3)
                 # sleep(0.1)
                 i = i + 1
@@ -204,7 +211,7 @@ def model_tuning_single(hidden_units=256,
 
 
 if __name__ == '__main__':
-    # model_tuning_single(hidden_units=128, epochs=1000)
+    # model_tuning_single(hidden_units=128, epochs=1000, is_win_platform=True)
     model_tuning_single(hidden_units=256, epochs=1000, is_win_platform=True)
     # model_tuning_single(hidden_units=512, epochs=1000)
 

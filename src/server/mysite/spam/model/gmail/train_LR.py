@@ -33,10 +33,10 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
     for j in range(0, 1):
         (uni, bi, tri) = CUTOFF_SETTINGS[j]
         print('Training on', CUTOFF_STRINGS[j], 'scale')
-        for k in range(0, 1):
+        for k in range(2, 3):
             ratio = SPAM_HAM_RATIOS[k]
             print('Training on spam ratio', ratio)
-            pickle_name_prefix = 'operationMode-' + str(operationalMode) \
+            pickle_name_prefix = 'lr_operationMode-' + str(operationalMode) \
                                  + '_cutoff-' + CUTOFF_STRINGS[j] \
                                  + '_ratio-' + str(ratio)
             # Had to run this command before building the graph
@@ -59,9 +59,9 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
             structure = {'features': numFeatures, 'labels': numLabels, 'examples': numTrainExamples}
 
             if is_win_platform:
-                feature_prefix = 'featuresLR\\operationMode-' + str(operationalMode) + '_structure_'
+                feature_prefix = 'features\\lr_operationMode-' + str(operationalMode) + '_structure_'
             else:
-                feature_prefix = 'featuresLR/operationMode-' + str(operationalMode) + '_structure_'
+                feature_prefix = 'features/lr_operationMode-' + str(operationalMode) + '_structure_'
             with open(feature_prefix + CUTOFF_STRINGS[j] + '_' + str(ratio) + '.pickle', 'wb') as f:
                 pickle.dump(structure, f)
 
@@ -127,18 +127,20 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
             # weightSummary = tf.summary.histogram("weights", weights.eval(session=sess))
             # biasSummary = tf.summary.histogram("biases", bias.eval(session=sess))
 
+            cost = 0
             global_max_f1 = 0
-            for i in range(desiredEpochs+1):
+            for i in range(desiredEpochs + 1):
                 sess.run(training_OP, feed_dict={X: trainX, tY: trainY})
-                if i % 10 == 0:
-                    train_acc, train_pc, train_rc, train_f1 = sess.run([accuracy_OP, precision_OP, recall_OP, f1_OP],
-                                                                       feed_dict={X: trainX, tY: trainY})
+                if i % 50 == 0:
+                    train_acc, train_pc, train_rc, train_f1, train_cost = sess.run(
+                        [accuracy_OP, precision_OP, recall_OP, f1_OP, cost_OP],
+                        feed_dict={X: trainX, tY: trainY})
                     test_acc, test_pc, test_rc, test_f1 = sess.run([accuracy_OP, precision_OP, recall_OP, f1_OP],
                                                                    feed_dict={X: testX, tY: testY})
                     print("For epoch ", i)
-                    print("Train[ACC, PC, RC]:\t ", train_acc, train_pc, train_rc)
+                    # print("Train[ACC, PC, RC]:\t ", train_acc, train_pc, train_rc)
                     print("Train[F1]:\t\t\t ", train_f1)
-                    print("Test[ACC, PC, RC]:\t ", test_acc, test_pc, test_rc)
+                    # print("Test[ACC, PC, RC]:\t ", test_acc, test_pc, test_rc)
                     print("Test[F1]:\t\t\t ", test_f1)
                     print("______________________________________")
                     if test_f1 >= global_max_f1:
@@ -158,6 +160,11 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
                             print('Successfully saved new weights')
                         global_max_f1 = test_f1
                     print('Global Max F1:', global_max_f1, 'on step:', optimal_parameters['step'])
+                    diff = abs(train_cost - cost)
+                    cost = train_cost
+                    if i > 1 and diff < .0000001:
+                        print("change in cost %g; convergence." % diff)
+                        break
 
             print("final optimal parameters: ",
                   str(optimal_parameters['acc']), str(optimal_parameters['pc']),
@@ -172,4 +179,4 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
 
 
 if __name__ == '__main__':
-    model_tuning_single(10000, True)
+    model_tuning_single(28000, True)
