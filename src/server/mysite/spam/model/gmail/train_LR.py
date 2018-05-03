@@ -30,7 +30,7 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
     else:
         data_prefix = DATA_PREFIX
         weights_output_prefix = os.getcwd() + "/weights_lr/"
-    for j in range(0, 1):
+    for j in range(0, 3):
         (uni, bi, tri) = CUTOFF_SETTINGS[j]
         print('Training on', CUTOFF_STRINGS[j], 'scale')
         for k in range(2, 3):
@@ -131,7 +131,7 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
             global_max_f1 = 0
             for i in range(desiredEpochs + 1):
                 sess.run(training_OP, feed_dict={X: trainX, tY: trainY})
-                if i % 50 == 0:
+                if i % 500 == 0:
                     train_acc, train_pc, train_rc, train_f1, train_cost = sess.run(
                         [accuracy_OP, precision_OP, recall_OP, f1_OP, cost_OP],
                         feed_dict={X: trainX, tY: trainY})
@@ -162,7 +162,8 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
                     print('Global Max F1:', global_max_f1, 'on step:', optimal_parameters['step'])
                     diff = abs(train_cost - cost)
                     cost = train_cost
-                    if i > 1 and diff < .0000001:
+                    print('Loss:\t\t\t\t', diff)
+                    if i > 1 and diff < .000005:
                         print("change in cost %g; convergence." % diff)
                         break
 
@@ -173,10 +174,10 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
                 pickle.dump(optimal_parameters, f)
             sess.close()
 
-        sleep(10)
+        sleep(100)
     ################################################################################
     pass
 
 
 if __name__ == '__main__':
-    model_tuning_single(28000, True)
+    model_tuning_single(28000, False)
