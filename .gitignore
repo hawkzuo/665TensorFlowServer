@@ -35,3 +35,6 @@ src/server/mysite/spam/model/gmail/pre_trained_256
 src/server/mysite/spam/model/gmail/pre_trained_512
 src/server/mysite/spam/model/gmail/pre_trained_lr
 
+# TF Tutorial Models
+src/models
+

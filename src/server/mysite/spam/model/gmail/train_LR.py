@@ -22,6 +22,7 @@ CUTOFF_STRINGS = ['small', 'medium', 'large']
 SPAM_HAM_RATIOS = [1, 2, 3]
 
 
+
 def model_tuning_single(epochs=20000, is_win_platform=False):
     print('Tuning LR model')
     if is_win_platform:
@@ -30,10 +31,10 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
     else:
         data_prefix = DATA_PREFIX
         weights_output_prefix = os.getcwd() + "/weights_lr/"
-    for j in range(0, 3):
+    for j in range(2, 3):
         (uni, bi, tri) = CUTOFF_SETTINGS[j]
         print('Training on', CUTOFF_STRINGS[j], 'scale')
-        for k in range(2, 3):
+        for k in range(0, 1):
             ratio = SPAM_HAM_RATIOS[k]
             print('Training on spam ratio', ratio)
             pickle_name_prefix = 'lr_operationMode-' + str(operationalMode) \
@@ -128,7 +129,7 @@ def model_tuning_single(epochs=20000, is_win_platform=False):
             # biasSummary = tf.summary.histogram("biases", bias.eval(session=sess))
 
             cost = 0
-            global_max_f1 = 0
+            global_max_f1 = -1
             for i in range(desiredEpochs + 1):
                 sess.run(training_OP, feed_dict={X: trainX, tY: trainY})
                 if i % 500 == 0:

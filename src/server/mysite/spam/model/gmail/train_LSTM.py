@@ -15,7 +15,7 @@ DATA_PREFIX = '/Users/jianyuzuo/Workspaces/CSCE665_project/'
 DATA_PREFIX_WIN = 'D:\\workplaces\\665\\'
 
 # Tri-Gram mode
-operationalMode = 1
+operationalMode = 3
 # Small Medium Large FeatureSets
 CUTOFF_SETTINGS = [(18, 28, 26), (12, 22, 20), (8, 16, 14)]
 CUTOFF_STRINGS = ['small', 'medium', 'large']
@@ -51,7 +51,7 @@ def model_tuning_single(hidden_units=256,
     for j in range(1, 2):
         (uni, bi, tri) = CUTOFF_SETTINGS[j]
         print('Training on', CUTOFF_STRINGS[j], 'scale')
-        for k in range(2, 3):
+        for k in range(0, 3):
             ratio = SPAM_HAM_RATIOS[k]
             print('Training on spam ratio', ratio)
             pickle_name_prefix = 'operationMode-' + str(operationalMode) \
@@ -193,7 +193,8 @@ def model_tuning_single(hidden_units=256,
                     print('Global Max F1:', global_max_f1, 'on step:', optimal_parameters['step'] // desiredBatches)
                     diff = abs(train_cost - cost)
                     cost = train_cost
-                    if i > 1 and diff < .0000001:
+                    print('Loss:\t\t\t\t', diff)
+                    if i > 1 and diff < .0000005:
                         print("change in cost %g; convergence." % diff)
                         break
                     # sleep(3)
