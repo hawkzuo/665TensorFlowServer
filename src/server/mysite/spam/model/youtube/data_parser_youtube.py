@@ -50,8 +50,8 @@ def load_crawler_data_youtube():
 
 
 def generate_model_in_memory(is_win_platform=False,
-                             uni_cutoff=5,
-                             bi_cutoff=10,
+                             uni_cutoff=8,
+                             bi_cutoff=14,
                              split=.2,
                              file_prefix='',
                              operational_mode=1):

@@ -40,7 +40,9 @@ def model_tuning_single(hidden_units=256,
     tf.reset_default_graph()
     # Dict used to save optimal params
     optimal_parameters = {}
-    trainX, trainY, testX, testY = generate_model_in_memory(is_win_platform=True, file_prefix=pickle_name_prefix)
+    trainX, trainY, testX, testY = generate_model_in_memory(is_win_platform=True,
+                                                            file_prefix=pickle_name_prefix,
+                                                            operational_mode=operationalMode)
     numFeatures = trainX.shape[1]
     numLabels = trainY.shape[1]
     numTrainExamples = trainX.shape[0]
@@ -185,14 +187,23 @@ def model_tuning_single(hidden_units=256,
 
 
 if __name__ == '__main__':
-    optimal = {'128': {1: {}, 2: {}}, '256': {1: {}, 2: {}}, '512': {1: {}, 2: {}}}
+    optimal = {128: {1: {}, 2: {}}, 256: {1: {}, 2: {}}, 512: {1: {}, 2: {}}}
     params1 = model_tuning_single(hidden_units=128, epochs=1000, is_win_platform=True, opt_mode=1)
     params2 = model_tuning_single(hidden_units=128, epochs=1000, is_win_platform=True, opt_mode=2)
-
-    params3 = model_tuning_single(hidden_units=256, epochs=1000, is_win_platform=True, opt_mode=1)
-    params4 = model_tuning_single(hidden_units=256, epochs=1000, is_win_platform=True, opt_mode=2)
+    optimal[128][1] = params1
+    optimal[128][2] = params2
 
     params5 = model_tuning_single(hidden_units=512, epochs=1000, is_win_platform=True, opt_mode=1)
     params6 = model_tuning_single(hidden_units=512, epochs=1000, is_win_platform=True, opt_mode=2)
+    optimal[512][1] = params5
+    optimal[512][2] = params6
 
+    params3 = model_tuning_single(hidden_units=256, epochs=1000, is_win_platform=True, opt_mode=1)
+    params4 = model_tuning_single(hidden_units=256, epochs=1000, is_win_platform=True, opt_mode=2)
+    optimal[256][1] = params3
+    optimal[256][2] = params4
+
+    with open('allParameters.pickle', 'wb') as f:
+        pickle.dump(optimal, f)
+    print('Optimal Parameters Saved')
     pass

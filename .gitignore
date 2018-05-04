@@ -11,10 +11,9 @@ src/*/*/*/*.csv
 *.pyc
 
 src/data/
-src/server/mysite/spam/model/weights
-src/server/mysite/spam/model/weights_lstm
 out/
 
+# Emails
 # weights too large to push to github
 src/server/mysite/weights
 src/server/mysite/weights_lstm
@@ -34,6 +33,18 @@ src/server/mysite/spam/model/gmail/pre_trained_128
 src/server/mysite/spam/model/gmail/pre_trained_256
 src/server/mysite/spam/model/gmail/pre_trained_512
 src/server/mysite/spam/model/gmail/pre_trained_lr
+
+# Youtube comments
+# features
+src/server/mysite/spam/model/youtube/features
+
+# weights
+src/server/mysite/spam/model/youtube/weights_lstm
+
+# Pre-trained
+src/server/mysite/spam/model/youtube/trained_large
+src/server/mysite/spam/model/youtube/trained_medium
+src/server/mysite/spam/model/youtube/trained_small
 
 # TF Tutorial Models
 src/models
